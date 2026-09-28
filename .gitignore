@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.dll
+*.so
+*.dylib
+*.obj
+*.lib
+*.exp
+models/
+.venv/
+.cache/
