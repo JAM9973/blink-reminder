@@ -1,0 +1,270 @@
+{
+  "file": "blink_20261103_114257_575690.csv",
+  "reported_manual_count": 10,
+  "manual_reference": "user reports 5 rapid pairs (10 blinks); no event timestamps",
+  "rows": 284,
+  "elapsed_seconds": 9.439682000000001,
+  "active_seconds": 9.25,
+  "detected_blink_events": 5,
+  "final_count_60s": 5,
+  "count_difference": -5,
+  "missing_face_rows": 6,
+  "invalid_ear_rows": 0,
+  "median_recorded_fps": 30.007,
+  "frame_interval_ms": {
+    "median": 33.85,
+    "maximum": 70.427
+  },
+  "settings": {
+    "camera": 0,
+    "target": 12,
+    "closed_ear": 0.18,
+    "open_ear": 0.23,
+    "stable_frames": 2,
+    "low_seconds": 10,
+    "cooldown_seconds": 60,
+    "model": "C:\\Users\\alex6\\Desktop\\프기2_조별과제\\models\\face_landmarker.task",
+    "landmarks_initial": true
+  },
+  "input_kind": "webcam",
+  "current_source_matches": {
+    "blink_app.py": true,
+    "measurement_log.py": true,
+    "engine.py": true,
+    "blink_engine.c": true,
+    "blink_engine.h": true
+  },
+  "csv_sha256": "ecdcf87f454f1d2ce7d9f2a0cea29a0165a896e4c3253b6595ac40b828b82f9b",
+  "blink_events": [
+    {
+      "frame": 59,
+      "elapsed_ms": 1917.535,
+      "active_ms": 1728,
+      "count_60s": 1
+    },
+    {
+      "frame": 97,
+      "elapsed_ms": 3205.11,
+      "active_ms": 3015,
+      "count_60s": 2
+    },
+    {
+      "frame": 132,
+      "elapsed_ms": 4359.567,
+      "active_ms": 4170,
+      "count_60s": 3
+    },
+    {
+      "frame": 164,
+      "elapsed_ms": 5439.843,
+      "active_ms": 5250,
+      "count_60s": 4
+    },
+    {
+      "frame": 193,
+      "elapsed_ms": 6388.266,
+      "active_ms": 6199,
+      "count_60s": 5
+    }
+  ],
+  "candidate_runs": [
+    {
+      "candidate": "MISSING",
+      "start_ms": 0.0,
+      "end_ms": 155.68,
+      "frames": 6,
+      "first_frame": 1,
+      "last_frame": 6,
+      "blinks": 0
+    },
+    {
+      "candidate": "O",
+      "start_ms": 190.052,
+      "end_ms": 1461.922,
+      "frames": 39,
+      "first_frame": 7,
+      "last_frame": 45,
+      "blinks": 0
+    },
+    {
+      "candidate": "C",
+      "start_ms": 1494.066,
+      "end_ms": 1820.999,
+      "frames": 11,
+      "first_frame": 46,
+      "last_frame": 56,
+      "blinks": 0
+    },
+    {
+      "candidate": "?",
+      "start_ms": 1849.259,
+      "end_ms": 1849.259,
+      "frames": 1,
+      "first_frame": 57,
+      "last_frame": 57,
+      "blinks": 0
+    },
+    {
+      "candidate": "O",
+      "start_ms": 1883.769,
+      "end_ms": 2662.14,
+      "frames": 24,
+      "first_frame": 58,
+      "last_frame": 81,
+      "blinks": 1
+    },
+    {
+      "candidate": "C",
+      "start_ms": 2695.79,
+      "end_ms": 2899.814,
+      "frames": 7,
+      "first_frame": 82,
+      "last_frame": 88,
+      "blinks": 0
+    },
+    {
+      "candidate": "?",
+      "start_ms": 2933.687,
+      "end_ms": 2933.687,
+      "frames": 1,
+      "first_frame": 89,
+      "last_frame": 89,
+      "blinks": 0
+    },
+    {
+      "candidate": "C",
+      "start_ms": 2967.46,
+      "end_ms": 3102.963,
+      "frames": 5,
+      "first_frame": 90,
+      "last_frame": 94,
+      "blinks": 0
+    },
+    {
+      "candidate": "?",
+      "start_ms": 3136.136,
+      "end_ms": 3136.136,
+      "frames": 1,
+      "first_frame": 95,
+      "last_frame": 95,
+      "blinks": 0
+    },
+    {
+      "candidate": "O",
+      "start_ms": 3171.098,
+      "end_ms": 3812.702,
+      "frames": 20,
+      "first_frame": 96,
+      "last_frame": 115,
+      "blinks": 1
+    },
+    {
+      "candidate": "?",
+      "start_ms": 3845.481,
+      "end_ms": 3845.481,
+      "frames": 1,
+      "first_frame": 116,
+      "last_frame": 116,
+      "blinks": 0
+    },
+    {
+      "candidate": "C",
+      "start_ms": 3878.06,
+      "end_ms": 4034.397,
+      "frames": 6,
+      "first_frame": 117,
+      "last_frame": 122,
+      "blinks": 0
+    },
+    {
+      "candidate": "?",
+      "start_ms": 4067.745,
+      "end_ms": 4101.306,
+      "frames": 2,
+      "first_frame": 123,
+      "last_frame": 124,
+      "blinks": 0
+    },
+    {
+      "candidate": "C",
+      "start_ms": 4133.6,
+      "end_ms": 4236.633,
+      "frames": 4,
+      "first_frame": 125,
+      "last_frame": 128,
+      "blinks": 0
+    },
+    {
+      "candidate": "?",
+      "start_ms": 4270.125,
+      "end_ms": 4290.823,
+      "frames": 2,
+      "first_frame": 129,
+      "last_frame": 130,
+      "blinks": 0
+    },
+    {
+      "candidate": "O",
+      "start_ms": 4325.177,
+      "end_ms": 4931.999,
+      "frames": 19,
+      "first_frame": 131,
+      "last_frame": 149,
+      "blinks": 1
+    },
+    {
+      "candidate": "C",
+      "start_ms": 4966.069,
+      "end_ms": 5337.169,
+      "frames": 12,
+      "first_frame": 150,
+      "last_frame": 161,
+      "blinks": 0
+    },
+    {
+      "candidate": "?",
+      "start_ms": 5371.357,
+      "end_ms": 5371.357,
+      "frames": 1,
+      "first_frame": 162,
+      "last_frame": 162,
+      "blinks": 0
+    },
+    {
+      "candidate": "O",
+      "start_ms": 5404.681,
+      "end_ms": 5879.81,
+      "frames": 16,
+      "first_frame": 163,
+      "last_frame": 178,
+      "blinks": 1
+    },
+    {
+      "candidate": "C",
+      "start_ms": 5914.169,
+      "end_ms": 6285.824,
+      "frames": 12,
+      "first_frame": 179,
+      "last_frame": 190,
+      "blinks": 0
+    },
+    {
+      "candidate": "?",
+      "start_ms": 6319.876,
+      "end_ms": 6319.876,
+      "frames": 1,
+      "first_frame": 191,
+      "last_frame": 191,
+      "blinks": 0
+    },
+    {
+      "candidate": "O",
+      "start_ms": 6354.55,
+      "end_ms": 9439.682,
+      "frames": 93,
+      "first_frame": 192,
+      "last_frame": 284,
+      "blinks": 1
+    }
+  ]
+}

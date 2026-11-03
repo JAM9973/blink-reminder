@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-03",
+  "environment": "Windows; Python 3.13.9 AMD64 64-bit; gcc x86_64-w64-mingw32",
+  "command": ".\\.venv\\Scripts\\python.exe -m unittest test_engine.py test_invalid_ear.py test_measurement_log.py -v",
+  "observed_test_result": {
+    "tests": 22,
+    "passed": 22,
+    "exit_code": 0
+  },
+  "initial_attempt": {
+    "tests": 22,
+    "errors": 5,
+    "reason": "Sandbox temporary directory ACL denied writes; moved disposable test files into bounded workspace .cache/measurement-tests"
+  },
+  "source_sha256": {
+    "blink_app.py": "62c4b5ed2a07ed6f15131da334eec8238cd4af4eff384cca89be4c2dec32ef58",
+    "measurement_log.py": "4c9a669b283eeff86b32241f9d851b4a2a8dd1e907c2e07eb15a9b3637f7b20b",
+    "test_measurement_log.py": "583727af7d350ab9c756503d250217efff02c3846a4ad8650afd07e5db1ee61f",
+    "blink_engine.c": "b6f1428da1858a40d6a31567c00f4d70caf71ffe830822515e710096c1c637ab",
+    "blink_engine.h": "7c7ffcab1a76613adce5a6ad0980171e5088b3c5f6558505757f5b0cd68efe41",
+    "engine.py": "f4e6a2f3cf3d7e060560adcdd85bffc371c973653dde15c05a1ff54feaeb2555"
+  },
+  "synthetic_example": "synthetic_example\\blink_20261103_111751_808351.csv",
+  "real_camera_verification": "not_run",
+  "wsl_verification": "E_ACCESSDENIED; not_run"
+}

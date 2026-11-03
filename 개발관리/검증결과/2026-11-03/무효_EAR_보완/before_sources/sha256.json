@@ -1,0 +1,10 @@
+{
+  "blink_engine.c": "fb3aa177fe970dd1d1a351ebd9b15d11ddc2caeeb2ae92a313aa146ed95b8130",
+  "blink_engine.h": "e32224d32a7993a8f02785db2f9203d2aabc767c673f518927add11ad6b5bd62",
+  "engine.py": "24b4e785d420e872f276061eff17b35e63ca5e553d78f69d0d879298244831c6",
+  "blink_app.py": "069e5e05ebf87f3202db961b6b0848d96b73fc17b15ba4d67d4b63d860cab45a",
+  "camera_worker.py": "5c33b333a5f69187dfdc41dbe77d73a16bdd348e2e087ea0d3175ca94b9bf21d",
+  "test_engine.py": "5dbcd9d72fe254dca797bc2309e9545307bc6cfd54e47e88448583b53b42c1eb",
+  "validate_scenarios.py": "2ec05cce0ca3b7b9f5c218a1557471429643149dbbc14cd9fedb4648602303ec",
+  "build.py": "11b6436b0013bc13196cf96a738c0dce57456dab47bb3e808704fd4b9490219a"
+}

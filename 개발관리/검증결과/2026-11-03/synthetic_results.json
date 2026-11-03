@@ -1,0 +1,826 @@
+{
+  "date": "2026-11-03",
+  "environment": {
+    "os": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.9 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 19:09:58) [MSC v.1929 64 bit (AMD64)]",
+    "machine": "AMD64",
+    "processor_architecture_env": "AMD64"
+  },
+  "source_sha256": {
+    "blink_engine.c": "fb3aa177fe970dd1d1a351ebd9b15d11ddc2caeeb2ae92a313aa146ed95b8130",
+    "blink_engine.h": "e32224d32a7993a8f02785db2f9203d2aabc767c673f518927add11ad6b5bd62",
+    "engine.py": "24b4e785d420e872f276061eff17b35e63ca5e553d78f69d0d879298244831c6",
+    "blink_app.py": "069e5e05ebf87f3202db961b6b0848d96b73fc17b15ba4d67d4b63d860cab45a",
+    "test_engine.py": "5dbcd9d72fe254dca797bc2309e9545307bc6cfd54e47e88448583b53b42c1eb",
+    "build.py": "11b6436b0013bc13196cf96a738c0dce57456dab47bb3e808704fd4b9490219a",
+    "validate_scenarios.py": "2ec05cce0ca3b7b9f5c218a1557471429643149dbbc14cd9fedb4648602303ec"
+  },
+  "library": {
+    "name": "blink_engine.dll",
+    "sha256": "24404975c5ad8ff27aa36c45e363db29f992da2a8bb0bb8b220adbd287c250bd"
+  },
+  "counts": {
+    "total": 29,
+    "rule_checks": 18,
+    "rule_failures": 0,
+    "probe_differences": 9
+  },
+  "results": [
+    {
+      "id": "open_only",
+      "title": "계속 뜬 눈",
+      "kind": "rule",
+      "options": {},
+      "expected": {
+        "blinks": 0,
+        "final_count": 0
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 0,
+        "final_count": 0,
+        "active_ms": 3267,
+        "blink_times": [],
+        "alerts": []
+      },
+      "matches_reference": true,
+      "mismatches": [],
+      "note": ""
+    },
+    {
+      "id": "wink_left",
+      "title": "left 한쪽 눈만 10회",
+      "kind": "rule",
+      "options": {},
+      "expected": {
+        "blinks": 0,
+        "final_count": 0
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 0,
+        "final_count": 0,
+        "active_ms": 2013,
+        "blink_times": [],
+        "alerts": []
+      },
+      "matches_reference": true,
+      "mismatches": [],
+      "note": ""
+    },
+    {
+      "id": "wink_right",
+      "title": "right 한쪽 눈만 10회",
+      "kind": "rule",
+      "options": {},
+      "expected": {
+        "blinks": 0,
+        "final_count": 0
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 0,
+        "final_count": 0,
+        "active_ms": 2013,
+        "blink_times": [],
+        "alerts": []
+      },
+      "matches_reference": true,
+      "mismatches": [],
+      "note": ""
+    },
+    {
+      "id": "alternating_winks",
+      "title": "좌우 번갈아 윙크",
+      "kind": "rule",
+      "options": {},
+      "expected": {
+        "blinks": 0,
+        "final_count": 0
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 0,
+        "final_count": 0,
+        "active_ms": 1023,
+        "blink_times": [],
+        "alerts": []
+      },
+      "matches_reference": true,
+      "mismatches": [],
+      "note": ""
+    },
+    {
+      "id": "staggered_overlap",
+      "title": "양쪽 시간 차이, 공동 감김 2프레임",
+      "kind": "rule",
+      "options": {},
+      "expected": {
+        "blinks": 1,
+        "final_count": 1,
+        "blink_times": [
+          231
+        ]
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 1,
+        "final_count": 1,
+        "active_ms": 231,
+        "blink_times": [
+          231
+        ],
+        "alerts": []
+      },
+      "matches_reference": true,
+      "mismatches": [],
+      "note": ""
+    },
+    {
+      "id": "staggered_short_overlap",
+      "title": "양쪽 시간 차이, 공동 감김 1프레임",
+      "kind": "limitation",
+      "options": {},
+      "expected": {
+        "blinks": 1
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 0,
+        "final_count": 0,
+        "active_ms": 264,
+        "blink_times": [],
+        "alerts": []
+      },
+      "matches_reference": false,
+      "mismatches": [
+        {
+          "field": "blinks",
+          "expected": 1,
+          "actual": 0
+        }
+      ],
+      "note": "양쪽 동작에 시간 차이가 있는 합성 입력. 공동 감김이 2프레임 미만이면 제외. 실제 사람의 시간 차이는 미측정."
+    },
+    {
+      "id": "start_closed",
+      "title": "눈을 감고 시작한 뒤 열기",
+      "kind": "rule",
+      "options": {},
+      "expected": {
+        "blinks": 0,
+        "final_count": 0
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 0,
+        "final_count": 0,
+        "active_ms": 396,
+        "blink_times": [],
+        "alerts": []
+      },
+      "matches_reference": true,
+      "mismatches": [],
+      "note": ""
+    },
+    {
+      "id": "long_closure",
+      "title": "약 10초 감은 뒤 열기",
+      "kind": "rule",
+      "options": {},
+      "expected": {
+        "blinks": 1,
+        "final_count": 1
+      },
+      "checkpoints": {
+        "9933": {
+          "count_60s": 0,
+          "blink": 0
+        }
+      },
+      "observed": {
+        "blinks": 1,
+        "final_count": 1,
+        "active_ms": 10263,
+        "blink_times": [
+          9999
+        ],
+        "alerts": []
+      },
+      "matches_reference": true,
+      "mismatches": [],
+      "note": "오래 감기도 재개방 때 1회인 현재 정책을 확인. 피로/졸음 분류는 하지 않음."
+    },
+    {
+      "id": "threshold_band",
+      "title": "EAR 경계 사이 흔들림",
+      "kind": "rule",
+      "options": {},
+      "expected": {
+        "blinks": 0,
+        "final_count": 0
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 0,
+        "final_count": 0,
+        "active_ms": 1419,
+        "blink_times": [],
+        "alerts": []
+      },
+      "matches_reference": true,
+      "mismatches": [],
+      "note": ""
+    },
+    {
+      "id": "threshold_exact",
+      "title": "감김 0.18·열림 0.23 경계값",
+      "kind": "rule",
+      "options": {},
+      "expected": {
+        "blinks": 1,
+        "blink_times": [
+          165
+        ]
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 1,
+        "final_count": 1,
+        "active_ms": 165,
+        "blink_times": [
+          165
+        ],
+        "alerts": []
+      },
+      "matches_reference": true,
+      "mismatches": [],
+      "note": ""
+    },
+    {
+      "id": "partial_closure",
+      "title": "감김 EAR이 0.20까지만 감소",
+      "kind": "rule",
+      "options": {},
+      "expected": {
+        "blinks": 0
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 0,
+        "final_count": 0,
+        "active_ms": 231,
+        "blink_times": [],
+        "alerts": []
+      },
+      "matches_reference": true,
+      "mismatches": [],
+      "note": "불완전한 깜빡임의 측정 정확도가 아닌 현재 문턱값 정책 확인."
+    },
+    {
+      "id": "missing_mid_closure",
+      "title": "감김 중 얼굴 미검출 후 복귀",
+      "kind": "rule",
+      "options": {},
+      "expected": {
+        "blinks": 0,
+        "final_count": 0,
+        "active_ms": 165
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 0,
+        "final_count": 0,
+        "active_ms": 165,
+        "blink_times": [],
+        "alerts": []
+      },
+      "matches_reference": true,
+      "mismatches": [],
+      "note": ""
+    },
+    {
+      "id": "gap_1000",
+      "title": "프레임 공백 정확히 1000ms",
+      "kind": "rule",
+      "options": {},
+      "expected": {
+        "blinks": 1,
+        "active_ms": 1132
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 1,
+        "final_count": 1,
+        "active_ms": 1132,
+        "blink_times": [
+          1132
+        ],
+        "alerts": []
+      },
+      "matches_reference": true,
+      "mismatches": [],
+      "note": ""
+    },
+    {
+      "id": "gap_1001",
+      "title": "프레임 공백 1001ms",
+      "kind": "rule",
+      "options": {},
+      "expected": {
+        "blinks": 0,
+        "active_ms": 132
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 0,
+        "final_count": 0,
+        "active_ms": 132,
+        "blink_times": [],
+        "alerts": []
+      },
+      "matches_reference": true,
+      "mismatches": [],
+      "note": ""
+    },
+    {
+      "id": "expiry_exact",
+      "title": "깜빡임 발생 60000ms 뒤 만료",
+      "kind": "rule",
+      "options": {},
+      "expected": {
+        "blinks": 1,
+        "final_count": 0
+      },
+      "checkpoints": {
+        "60164": {
+          "count_60s": 1
+        },
+        "60165": {
+          "count_60s": 0
+        }
+      },
+      "observed": {
+        "blinks": 1,
+        "final_count": 0,
+        "active_ms": 60165,
+        "blink_times": [
+          165
+        ],
+        "alerts": []
+      },
+      "matches_reference": true,
+      "mismatches": [],
+      "note": ""
+    },
+    {
+      "id": "target_equal",
+      "title": "횟수와 기준이 같으면 알림 없음",
+      "kind": "rule",
+      "options": {
+        "target": 1,
+        "low_seconds": 0
+      },
+      "expected": {
+        "blinks": 1,
+        "final_count": 1,
+        "alerts": []
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 1,
+        "final_count": 1,
+        "active_ms": 60000,
+        "blink_times": [
+          165
+        ],
+        "alerts": []
+      },
+      "matches_reference": true,
+      "mismatches": [],
+      "note": ""
+    },
+    {
+      "id": "target_below",
+      "title": "횟수가 기준보다 1회 적을 때 알림",
+      "kind": "rule",
+      "options": {
+        "target": 2,
+        "low_seconds": 0
+      },
+      "expected": {
+        "blinks": 1,
+        "final_count": 1,
+        "alerts": [
+          60000
+        ]
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 1,
+        "final_count": 1,
+        "active_ms": 60000,
+        "blink_times": [
+          165
+        ],
+        "alerts": [
+          60000
+        ]
+      },
+      "matches_reference": true,
+      "mismatches": [],
+      "note": ""
+    },
+    {
+      "id": "warmup_and_cooldown",
+      "title": "60초 준비·10초 지속·60초 재알림",
+      "kind": "rule",
+      "options": {
+        "target": 1,
+        "low_seconds": 10,
+        "cooldown_seconds": 60
+      },
+      "expected": {
+        "blinks": 0,
+        "alerts": [
+          70000,
+          130000
+        ]
+      },
+      "checkpoints": {
+        "60000": {
+          "alert": 0
+        },
+        "69999": {
+          "alert": 0
+        },
+        "129999": {
+          "alert": 0
+        }
+      },
+      "observed": {
+        "blinks": 0,
+        "final_count": 0,
+        "active_ms": 130000,
+        "blink_times": [],
+        "alerts": [
+          70000,
+          130000
+        ]
+      },
+      "matches_reference": true,
+      "mismatches": [],
+      "note": ""
+    },
+    {
+      "id": "missing_pauses_alert_clock",
+      "title": "자리 비운 시간은 알림 대기에 포함 안 함",
+      "kind": "rule",
+      "options": {
+        "target": 1,
+        "low_seconds": 10
+      },
+      "expected": {
+        "blinks": 0,
+        "active_ms": 70000,
+        "alerts": [
+          105000
+        ]
+      },
+      "checkpoints": {
+        "99000": {
+          "alert": 0,
+          "active_ms": 65000
+        },
+        "100000": {
+          "alert": 0,
+          "active_ms": 65000
+        }
+      },
+      "observed": {
+        "blinks": 0,
+        "final_count": 0,
+        "active_ms": 70000,
+        "blink_times": [],
+        "alerts": [
+          105000
+        ]
+      },
+      "matches_reference": true,
+      "mismatches": [],
+      "note": ""
+    },
+    {
+      "id": "sampling_33",
+      "title": "같은 40ms 감김을 33ms 간격으로 샘플링",
+      "kind": "limitation",
+      "options": {},
+      "expected": {
+        "blinks": 1
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 0,
+        "final_count": 0,
+        "active_ms": 297,
+        "blink_times": [],
+        "alerts": []
+      },
+      "matches_reference": false,
+      "mismatches": [
+        {
+          "field": "blinks",
+          "expected": 1,
+          "actual": 0
+        }
+      ],
+      "note": "40ms는 합성 신호 길이이며 사람의 정상 깜빡임 기준이 아님."
+    },
+    {
+      "id": "sampling_16",
+      "title": "같은 40ms 감김을 16ms 간격으로 샘플링",
+      "kind": "limitation",
+      "options": {},
+      "expected": {
+        "blinks": 1
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 1,
+        "final_count": 1,
+        "active_ms": 288,
+        "blink_times": [
+          160
+        ],
+        "alerts": []
+      },
+      "matches_reference": true,
+      "mismatches": [],
+      "note": "샘플 시점과 2프레임 규칙의 영향 비교. 실제 FPS 측정 아님."
+    },
+    {
+      "id": "low_open_ear_default",
+      "title": "열림 0.17·감김 0.08 합성 사용자, 기본값",
+      "kind": "limitation",
+      "options": {},
+      "expected": {
+        "blinks": 1
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 0,
+        "final_count": 0,
+        "active_ms": 264,
+        "blink_times": [],
+        "alerts": []
+      },
+      "matches_reference": false,
+      "mismatches": [
+        {
+          "field": "blinks",
+          "expected": 1,
+          "actual": 0
+        }
+      ],
+      "note": "눈이 작은 실제 참가자의 측정값이 아님. 낮은 열림 EAR 가정만 검증."
+    },
+    {
+      "id": "low_open_ear_adjusted",
+      "title": "동일 합성 입력, 문턱값 0.10/0.15",
+      "kind": "limitation",
+      "options": {
+        "closed_ear": 0.1,
+        "open_ear": 0.15
+      },
+      "expected": {
+        "blinks": 1
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 1,
+        "final_count": 1,
+        "active_ms": 264,
+        "blink_times": [
+          231
+        ],
+        "alerts": []
+      },
+      "matches_reference": true,
+      "mismatches": [],
+      "note": "이 합성 입력에만 맞춘 예시. 실제 사용자 권장값·개선율이 아님."
+    },
+    {
+      "id": "person_switch_proxy",
+      "title": "A의 감긴 값 뒤 B의 열린 값이 전달되는 가정",
+      "kind": "limitation",
+      "options": {},
+      "expected": {
+        "blinks": 0
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 1,
+        "final_count": 1,
+        "active_ms": 165,
+        "blink_times": [
+          165
+        ],
+        "alerts": []
+      },
+      "matches_reference": false,
+      "mismatches": [
+        {
+          "field": "blinks",
+          "expected": 0,
+          "actual": 1
+        }
+      ],
+      "note": "C 입력에 사람 ID가 없어 일반 깜빡임과 같은 값이면 구분 불가. 실제 대상 전환 재현은 아님."
+    },
+    {
+      "id": "invalid_nan",
+      "title": "얼굴 검출 참 + 무효 EAR nan 60초",
+      "kind": "safety_probe",
+      "options": {
+        "target": 1,
+        "low_seconds": 0
+      },
+      "expected": {
+        "blinks": 0,
+        "active_ms": 0,
+        "alerts": []
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 0,
+        "final_count": 0,
+        "active_ms": 60000,
+        "blink_times": [],
+        "alerts": [
+          60000
+        ]
+      },
+      "matches_reference": false,
+      "mismatches": [
+        {
+          "field": "active_ms",
+          "expected": 0,
+          "actual": 60000
+        },
+        {
+          "field": "alerts",
+          "expected": [],
+          "actual": [
+            60000
+          ]
+        }
+      ],
+      "note": "제안 안전 기준: 유효하지 않은 측정은 시간·알림 판단에 사용하지 않는다. 기존 face=True 경로의 방어 처리 점검."
+    },
+    {
+      "id": "invalid_inf",
+      "title": "얼굴 검출 참 + 무효 EAR inf 60초",
+      "kind": "safety_probe",
+      "options": {
+        "target": 1,
+        "low_seconds": 0
+      },
+      "expected": {
+        "blinks": 0,
+        "active_ms": 0,
+        "alerts": []
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 0,
+        "final_count": 0,
+        "active_ms": 60000,
+        "blink_times": [],
+        "alerts": [
+          60000
+        ]
+      },
+      "matches_reference": false,
+      "mismatches": [
+        {
+          "field": "active_ms",
+          "expected": 0,
+          "actual": 60000
+        },
+        {
+          "field": "alerts",
+          "expected": [],
+          "actual": [
+            60000
+          ]
+        }
+      ],
+      "note": "제안 안전 기준: 유효하지 않은 측정은 시간·알림 판단에 사용하지 않는다. 기존 face=True 경로의 방어 처리 점검."
+    },
+    {
+      "id": "invalid_negative",
+      "title": "얼굴 검출 참 + 무효 EAR negative 60초",
+      "kind": "safety_probe",
+      "options": {
+        "target": 1,
+        "low_seconds": 0
+      },
+      "expected": {
+        "blinks": 0,
+        "active_ms": 0,
+        "alerts": []
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 0,
+        "final_count": 0,
+        "active_ms": 60000,
+        "blink_times": [],
+        "alerts": [
+          60000
+        ]
+      },
+      "matches_reference": false,
+      "mismatches": [
+        {
+          "field": "active_ms",
+          "expected": 0,
+          "actual": 60000
+        },
+        {
+          "field": "alerts",
+          "expected": [],
+          "actual": [
+            60000
+          ]
+        }
+      ],
+      "note": "제안 안전 기준: 유효하지 않은 측정은 시간·알림 판단에 사용하지 않는다. 기존 face=True 경로의 방어 처리 점검."
+    },
+    {
+      "id": "invalid_nan_default_alert",
+      "title": "기본 알림 설정에서 NaN EAR 70초",
+      "kind": "safety_probe",
+      "options": {},
+      "expected": {
+        "blinks": 0,
+        "active_ms": 0,
+        "alerts": []
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 0,
+        "final_count": 0,
+        "active_ms": 70000,
+        "blink_times": [],
+        "alerts": [
+          70000
+        ]
+      },
+      "matches_reference": false,
+      "mismatches": [
+        {
+          "field": "active_ms",
+          "expected": 0,
+          "actual": 70000
+        },
+        {
+          "field": "alerts",
+          "expected": [],
+          "actual": [
+            70000
+          ]
+        }
+      ],
+      "note": "기본 target=12·low_seconds=10에서도 무효 EAR로 알림이 발생하는지 점검."
+    },
+    {
+      "id": "invalid_mid_closure",
+      "title": "감김 중 NaN이 끼고 열린 값으로 복귀",
+      "kind": "safety_probe",
+      "options": {},
+      "expected": {
+        "blinks": 0
+      },
+      "checkpoints": {},
+      "observed": {
+        "blinks": 1,
+        "final_count": 1,
+        "active_ms": 231,
+        "blink_times": [
+          231
+        ],
+        "alerts": []
+      },
+      "matches_reference": false,
+      "mismatches": [
+        {
+          "field": "blinks",
+          "expected": 0,
+          "actual": 1
+        }
+      ],
+      "note": "제안 안전 기준: 무효 입력으로 끊긴 상태 전이를 연결하지 않는다."
+    }
+  ]
+}

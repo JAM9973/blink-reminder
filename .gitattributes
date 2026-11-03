@@ -1,0 +1,16 @@
+* text=auto
+.gitattributes text eol=lf
+.gitignore text eol=lf
+*.py text eol=lf
+*.c text eol=lf
+*.h text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.csv text eol=lf
+*.cmd text eol=crlf
+VERSION text eol=lf
+# Preserve exact bytes in verification archives and source snapshots so their
+# recorded SHA256 values remain meaningful after cloning on another platform.
+개발관리/검증결과/** -text -whitespace
+# Generated vector paths may contain significant literal formatting.
+제안서_도식/*.svg -whitespace

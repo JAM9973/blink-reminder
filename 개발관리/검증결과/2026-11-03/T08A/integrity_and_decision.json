@@ -1,0 +1,98 @@
+{
+  "date": "2026-11-03",
+  "production_unchanged": true,
+  "input_files_unchanged": true,
+  "recommendation": "B_conservative for next-stage validation only; not a production selection",
+  "goal_10_rapid_not_met": true,
+  "independent_camera_validation": false,
+  "profiles": [
+    {
+      "id": "baseline",
+      "normal": 10,
+      "rapid": 5,
+      "legacy_failure_entries": 0,
+      "synthetic_failure_ids": [
+        "clear_double",
+        "clear_triple",
+        "timed_double_16ms",
+        "timed_double_33ms",
+        "timed_double_67ms"
+      ],
+      "source_sha256": "a2c8fbe42be9d9994880f09f742d76484baf622dd710b6615b189ebf1fa3ba5e",
+      "binary_sha256": "23d23f19f36a9d2eb5e6449ba846ec4e59eab8694796a356ce99f763dcd19321"
+    },
+    {
+      "id": "A_one_frame",
+      "normal": 10,
+      "rapid": 5,
+      "legacy_failure_entries": 15,
+      "synthetic_failure_ids": [
+        "clear_double",
+        "clear_triple",
+        "single_open_noise",
+        "timed_double_16ms",
+        "timed_double_33ms",
+        "timed_double_67ms"
+      ],
+      "source_sha256": "a2c8fbe42be9d9994880f09f742d76484baf622dd710b6615b189ebf1fa3ba5e",
+      "binary_sha256": "212ae747e3a71115ba65272d8cf130f7fa8b831338bbc016db16e12b3968431b"
+    },
+    {
+      "id": "A_lower_015",
+      "normal": 10,
+      "rapid": 6,
+      "legacy_failure_entries": 0,
+      "synthetic_failure_ids": [
+        "clear_double",
+        "clear_triple",
+        "timed_double_16ms",
+        "timed_double_33ms",
+        "timed_double_67ms"
+      ],
+      "source_sha256": "a2c8fbe42be9d9994880f09f742d76484baf622dd710b6615b189ebf1fa3ba5e",
+      "binary_sha256": "734972313cd998c540d83ca173b170dd259ba6e1d9150fa5a8f070ea23169d8b"
+    },
+    {
+      "id": "A_lower_012",
+      "normal": 10,
+      "rapid": 6,
+      "legacy_failure_entries": 0,
+      "synthetic_failure_ids": [],
+      "source_sha256": "a2c8fbe42be9d9994880f09f742d76484baf622dd710b6615b189ebf1fa3ba5e",
+      "binary_sha256": "8490474abc1ccc1bfeb779abc4b3e9732ca1fbb0aa25fc65772e03568a7348ca"
+    },
+    {
+      "id": "B_conservative",
+      "normal": 10,
+      "rapid": 8,
+      "legacy_failure_entries": 0,
+      "synthetic_failure_ids": [],
+      "source_sha256": "eedfcf7f197142966d00cee47fdb0c8a19949c673ed0e8fb01f7d2edb7cc9a53",
+      "binary_sha256": "7bc66fa1a5f14c0ed953507eb0452c1248638b3d59620ef75453fea2b87ff3c7"
+    },
+    {
+      "id": "B_moderate",
+      "normal": 10,
+      "rapid": 9,
+      "legacy_failure_entries": 0,
+      "synthetic_failure_ids": [
+        "long_correlated_jitter"
+      ],
+      "source_sha256": "eedfcf7f197142966d00cee47fdb0c8a19949c673ed0e8fb01f7d2edb7cc9a53",
+      "binary_sha256": "2481d0591dae4756166d03fe2693575d82457148ffe9870c43040f1e2ea20f12"
+    },
+    {
+      "id": "B_sensitive",
+      "normal": 10,
+      "rapid": 9,
+      "legacy_failure_entries": 0,
+      "synthetic_failure_ids": [
+        "long_small_jitter",
+        "long_correlated_jitter"
+      ],
+      "source_sha256": "eedfcf7f197142966d00cee47fdb0c8a19949c673ed0e8fb01f7d2edb7cc9a53",
+      "binary_sha256": "725325f9a36e6a206580950771d4d87b432c3ed732d6437f08cb0ee17aaf8c9a"
+    }
+  ],
+  "checkpoint_replay_note": "v01 packaging replay used the preserved baseline, with the same candidate counts and test results; only local binaries were rebuilt."
+}

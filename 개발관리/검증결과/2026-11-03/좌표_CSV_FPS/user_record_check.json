@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-03",
+  "sessions": [
+    {
+      "file": "blink_20261103_112738_873451.csv",
+      "rows": 10969,
+      "columns": 23,
+      "input_kind": "webcam",
+      "elapsed_seconds": 424.813,
+      "active_seconds": 410.265,
+      "detected_blink_events": 80,
+      "alert_events": 3,
+      "missing_face_rows": 404,
+      "invalid_ear_rows": 0,
+      "landmarks_options": [
+        "0",
+        "1"
+      ],
+      "median_recorded_fps": 27.0,
+      "current_source_matches": {
+        "blink_app.py": false,
+        "measurement_log.py": true,
+        "engine.py": true,
+        "blink_engine.c": true,
+        "blink_engine.h": true
+      },
+      "csv_sha256": "2ba28cad760633f153d222845d9bcbcc9f75aa2237f4d50e1bbbb6a3e10e1f4f",
+      "structure_check": "passed",
+      "manual_reference": "not_provided; no accuracy inferred"
+    },
+    {
+      "file": "blink_20261103_113457_760119.csv",
+      "rows": 1864,
+      "columns": 23,
+      "input_kind": "webcam",
+      "elapsed_seconds": 71.183,
+      "active_seconds": 61.642,
+      "detected_blink_events": 16,
+      "alert_events": 0,
+      "missing_face_rows": 214,
+      "invalid_ear_rows": 0,
+      "landmarks_options": [
+        "0",
+        "1"
+      ],
+      "median_recorded_fps": 29.48,
+      "current_source_matches": {
+        "blink_app.py": true,
+        "measurement_log.py": true,
+        "engine.py": true,
+        "blink_engine.c": true,
+        "blink_engine.h": true
+      },
+      "csv_sha256": "00b054cfef9df025dc5a9135dd0756b615dc8c337f946f6ee04a716525884f3c",
+      "structure_check": "passed",
+      "manual_reference": "not_provided; no accuracy inferred"
+    }
+  ]
+}

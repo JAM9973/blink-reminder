@@ -1,0 +1,121 @@
+{
+  "file": "blink_20261103_114133_631762.csv",
+  "reported_manual_count": 10,
+  "manual_reference": "user self-count; no event timestamps",
+  "rows": 820,
+  "elapsed_seconds": 27.354187000000003,
+  "active_seconds": 27.195,
+  "detected_blink_events": 10,
+  "final_count_60s": 10,
+  "count_difference": 0,
+  "alert_events": 0,
+  "missing_face_rows": 3,
+  "invalid_ear_rows": 0,
+  "median_recorded_fps": 29.863,
+  "frame_interval_ms": {
+    "median": 33.843,
+    "maximum": 122.835
+  },
+  "settings": {
+    "camera": 0,
+    "target": 12,
+    "closed_ear": 0.18,
+    "open_ear": 0.23,
+    "stable_frames": 2,
+    "low_seconds": 10,
+    "cooldown_seconds": 60,
+    "model": "C:\\Users\\alex6\\Desktop\\프기2_조별과제\\models\\face_landmarker.task",
+    "landmarks_initial": true
+  },
+  "input_kind": "webcam",
+  "current_source_matches": {
+    "blink_app.py": true,
+    "measurement_log.py": true,
+    "engine.py": true,
+    "blink_engine.c": true,
+    "blink_engine.h": true
+  },
+  "csv_sha256": "31674589c8569490e479da382a407a9d67fcb41a2c1f878952bb81ab1df7b1ff",
+  "blink_events": [
+    {
+      "frame": 88,
+      "elapsed_ms": 2966.236,
+      "active_ms": 2807,
+      "left_ear": 0.28338313651150965,
+      "right_ear": 0.26090673261197306,
+      "count_60s": 1
+    },
+    {
+      "frame": 157,
+      "elapsed_ms": 5267.982,
+      "active_ms": 5109,
+      "left_ear": 0.25374969204107484,
+      "right_ear": 0.2602351249636866,
+      "count_60s": 2
+    },
+    {
+      "frame": 233,
+      "elapsed_ms": 7817.875,
+      "active_ms": 7659,
+      "left_ear": 0.2483469542161769,
+      "right_ear": 0.2507405048860086,
+      "count_60s": 3
+    },
+    {
+      "frame": 270,
+      "elapsed_ms": 9029.026,
+      "active_ms": 8870,
+      "left_ear": 0.23868262282075692,
+      "right_ear": 0.24321920925105822,
+      "count_60s": 4
+    },
+    {
+      "frame": 306,
+      "elapsed_ms": 10214.242,
+      "active_ms": 10055,
+      "left_ear": 0.24079025735375897,
+      "right_ear": 0.24088120792689113,
+      "count_60s": 5
+    },
+    {
+      "frame": 327,
+      "elapsed_ms": 10931.096,
+      "active_ms": 10772,
+      "left_ear": 0.25421680678103237,
+      "right_ear": 0.23375708191324598,
+      "count_60s": 6
+    },
+    {
+      "frame": 563,
+      "elapsed_ms": 18784.923,
+      "active_ms": 18626,
+      "left_ear": 0.24642213828951506,
+      "right_ear": 0.25351207817073873,
+      "count_60s": 7
+    },
+    {
+      "frame": 597,
+      "elapsed_ms": 19935.961,
+      "active_ms": 19777,
+      "left_ear": 0.25821520208772875,
+      "right_ear": 0.2687148749304972,
+      "count_60s": 8
+    },
+    {
+      "frame": 708,
+      "elapsed_ms": 23627.516,
+      "active_ms": 23468,
+      "left_ear": 0.23298582438743473,
+      "right_ear": 0.24358929523709655,
+      "count_60s": 9
+    },
+    {
+      "frame": 737,
+      "elapsed_ms": 24576.757,
+      "active_ms": 24418,
+      "left_ear": 0.2535401828512606,
+      "right_ear": 0.2705853118072287,
+      "count_60s": 10
+    }
+  ]
+}

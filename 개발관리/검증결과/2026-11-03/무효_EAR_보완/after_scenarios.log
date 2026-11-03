@@ -1,0 +1,34 @@
+빌드 완료: C:\Users\alex6\Desktop\프기2_조별과제\blink_engine.dll
+open_only: MATCH (rule) {'blinks': 0, 'final_count': 0, 'active_ms': 3267, 'blink_times': [], 'alerts': []}
+wink_left: MATCH (rule) {'blinks': 0, 'final_count': 0, 'active_ms': 2013, 'blink_times': [], 'alerts': []}
+wink_right: MATCH (rule) {'blinks': 0, 'final_count': 0, 'active_ms': 2013, 'blink_times': [], 'alerts': []}
+alternating_winks: MATCH (rule) {'blinks': 0, 'final_count': 0, 'active_ms': 1023, 'blink_times': [], 'alerts': []}
+staggered_overlap: MATCH (rule) {'blinks': 1, 'final_count': 1, 'active_ms': 231, 'blink_times': [231], 'alerts': []}
+staggered_short_overlap: DIFFERENCE (limitation) {'blinks': 0, 'final_count': 0, 'active_ms': 264, 'blink_times': [], 'alerts': []}
+start_closed: MATCH (rule) {'blinks': 0, 'final_count': 0, 'active_ms': 396, 'blink_times': [], 'alerts': []}
+long_closure: MATCH (rule) {'blinks': 1, 'final_count': 1, 'active_ms': 10263, 'blink_times': [9999], 'alerts': []}
+threshold_band: MATCH (rule) {'blinks': 0, 'final_count': 0, 'active_ms': 1419, 'blink_times': [], 'alerts': []}
+threshold_exact: MATCH (rule) {'blinks': 1, 'final_count': 1, 'active_ms': 165, 'blink_times': [165], 'alerts': []}
+partial_closure: MATCH (rule) {'blinks': 0, 'final_count': 0, 'active_ms': 231, 'blink_times': [], 'alerts': []}
+missing_mid_closure: MATCH (rule) {'blinks': 0, 'final_count': 0, 'active_ms': 165, 'blink_times': [], 'alerts': []}
+gap_1000: MATCH (rule) {'blinks': 1, 'final_count': 1, 'active_ms': 1132, 'blink_times': [1132], 'alerts': []}
+gap_1001: MATCH (rule) {'blinks': 0, 'final_count': 0, 'active_ms': 132, 'blink_times': [], 'alerts': []}
+expiry_exact: MATCH (rule) {'blinks': 1, 'final_count': 0, 'active_ms': 60165, 'blink_times': [165], 'alerts': []}
+target_equal: MATCH (rule) {'blinks': 1, 'final_count': 1, 'active_ms': 60000, 'blink_times': [165], 'alerts': []}
+target_below: MATCH (rule) {'blinks': 1, 'final_count': 1, 'active_ms': 60000, 'blink_times': [165], 'alerts': [60000]}
+warmup_and_cooldown: MATCH (rule) {'blinks': 0, 'final_count': 0, 'active_ms': 130000, 'blink_times': [], 'alerts': [70000, 130000]}
+missing_pauses_alert_clock: MATCH (rule) {'blinks': 0, 'final_count': 0, 'active_ms': 70000, 'blink_times': [], 'alerts': [105000]}
+sampling_33: DIFFERENCE (limitation) {'blinks': 0, 'final_count': 0, 'active_ms': 297, 'blink_times': [], 'alerts': []}
+sampling_16: MATCH (limitation) {'blinks': 1, 'final_count': 1, 'active_ms': 288, 'blink_times': [160], 'alerts': []}
+low_open_ear_default: DIFFERENCE (limitation) {'blinks': 0, 'final_count': 0, 'active_ms': 264, 'blink_times': [], 'alerts': []}
+low_open_ear_adjusted: MATCH (limitation) {'blinks': 1, 'final_count': 1, 'active_ms': 264, 'blink_times': [231], 'alerts': []}
+person_switch_proxy: DIFFERENCE (limitation) {'blinks': 1, 'final_count': 1, 'active_ms': 165, 'blink_times': [165], 'alerts': []}
+invalid_nan: MATCH (safety_probe) {'blinks': 0, 'final_count': 0, 'active_ms': 0, 'blink_times': [], 'alerts': []}
+invalid_inf: MATCH (safety_probe) {'blinks': 0, 'final_count': 0, 'active_ms': 0, 'blink_times': [], 'alerts': []}
+invalid_negative: MATCH (safety_probe) {'blinks': 0, 'final_count': 0, 'active_ms': 0, 'blink_times': [], 'alerts': []}
+invalid_nan_default_alert: MATCH (safety_probe) {'blinks': 0, 'final_count': 0, 'active_ms': 0, 'blink_times': [], 'alerts': []}
+invalid_mid_closure: MATCH (safety_probe) {'blinks': 0, 'final_count': 0, 'active_ms': 132, 'blink_times': [], 'alerts': []}
+{"total": 29, "rule_checks": 18, "rule_failures": 0, "probe_differences": 4}
+
+
+exit_code=0

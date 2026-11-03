@@ -1,0 +1,29 @@
+test_missing_face_pauses_observation_and_alert (test_engine.EngineTests.test_missing_face_pauses_observation_and_alert) ... ok
+test_noise_disagreement_and_missing_face (test_engine.EngineTests.test_noise_disagreement_and_missing_face) ... ok
+test_open_closed_open_counts_once (test_engine.EngineTests.test_open_closed_open_counts_once) ... ok
+test_repeated_blinks_count_each_reopening_once (test_engine.EngineTests.test_repeated_blinks_count_each_reopening_once) ... ok
+test_repeated_single_frame_closures_are_filtered (test_engine.EngineTests.test_repeated_single_frame_closures_are_filtered) ... ok
+test_single_frame_reopening_does_not_split_closure (test_engine.EngineTests.test_single_frame_reopening_does_not_split_closure) ... ok
+test_target_change (test_engine.EngineTests.test_target_change) ... ok
+test_window_persistence_and_cooldown (test_engine.EngineTests.test_window_persistence_and_cooldown) ... ok
+test_degenerate_eye_coordinates_do_not_extend_observation (test_invalid_ear.InvalidEarTests.test_degenerate_eye_coordinates_do_not_extend_observation) ... ok
+test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) ... ok
+test_invalid_measurements_pause_pending_alert_and_cooldown (test_invalid_ear.InvalidEarTests.test_invalid_measurements_pause_pending_alert_and_cooldown) ... ok
+test_invalid_sample_breaks_closed_to_open_transition (test_invalid_ear.InvalidEarTests.test_invalid_sample_breaks_closed_to_open_transition) ... ok
+test_small_finite_ear_is_not_discarded (test_invalid_ear.InvalidEarTests.test_small_finite_ear_is_not_discarded) ... ok
+test_valid_history_survives_and_new_blink_counts_after_recovery (test_invalid_ear.InvalidEarTests.test_valid_history_survives_and_new_blink_counts_after_recovery) ... ok
+test_zero_ear_is_valid_closed_input (test_invalid_ear.InvalidEarTests.test_zero_ear_is_valid_closed_input) ... ok
+test_camera_error_closes_record_file_and_releases_camera (test_measurement_log.MeasurementLogTests.test_camera_error_closes_record_file_and_releases_camera) ... ok
+test_csv_disabled_keeps_app_running_without_creating_records (test_measurement_log.MeasurementLogTests.test_csv_disabled_keeps_app_running_without_creating_records) ... ok
+test_csv_open_error_does_not_stop_measurement_or_alert (test_measurement_log.MeasurementLogTests.test_csv_open_error_does_not_stop_measurement_or_alert) ... ok
+test_csv_write_error_closes_recorder_and_keeps_alert_running (test_measurement_log.MeasurementLogTests.test_csv_write_error_closes_recorder_and_keeps_alert_running) ... ok
+test_fps_measures_intervals_and_includes_long_gap (test_measurement_log.MeasurementLogTests.test_fps_measures_intervals_and_includes_long_gap) ... ok
+test_mouse_points_and_exit_work_without_keyboard_events (test_measurement_log.MeasurementLogTests.test_mouse_points_and_exit_work_without_keyboard_events) ... ok
+test_points_use_width_and_height_and_stay_inside_image (test_measurement_log.MeasurementLogTests.test_points_use_width_and_height_and_stay_inside_image) ... ok
+test_real_app_loop_saves_raw_values_settings_and_events (test_measurement_log.MeasurementLogTests.test_real_app_loop_saves_raw_values_settings_and_events) ... ok
+test_uppercase_q_escape_and_window_close_save_and_exit (test_measurement_log.MeasurementLogTests.test_uppercase_q_escape_and_window_close_save_and_exit) ... ok
+
+----------------------------------------------------------------------
+Ran 24 tests in 0.573s
+
+OK

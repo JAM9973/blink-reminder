@@ -1,0 +1,35 @@
+빌드 완료: C:\Users\alex6\Desktop\프기2_조별과제\blink_engine.dll
+
+test_missing_face_pauses_observation_and_alert (test_engine.EngineTests.test_missing_face_pauses_observation_and_alert) ... ok
+test_noise_disagreement_and_missing_face (test_engine.EngineTests.test_noise_disagreement_and_missing_face) ... ok
+test_open_closed_open_counts_once (test_engine.EngineTests.test_open_closed_open_counts_once) ... ok
+test_repeated_blinks_count_each_reopening_once (test_engine.EngineTests.test_repeated_blinks_count_each_reopening_once) ... ok
+test_repeated_single_frame_closures_are_filtered (test_engine.EngineTests.test_repeated_single_frame_closures_are_filtered) ... ok
+test_single_frame_reopening_does_not_split_closure (test_engine.EngineTests.test_single_frame_reopening_does_not_split_closure) ... ok
+test_target_change (test_engine.EngineTests.test_target_change) ... ok
+test_window_persistence_and_cooldown (test_engine.EngineTests.test_window_persistence_and_cooldown) ... ok
+C:/Users/alex6/AppData/Local/Microsoft/WinGet/Packages/BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/16.1.0/../../../../x86_64-w64-mingw32/bin/ld.exe: cannot open output file blink_engine.dll: Permission denied
+collect2.exe: error: ld returned 1 exit status
+setUpClass (test_invalid_ear.InvalidEarTests) ... ERROR
+
+======================================================================
+ERROR: setUpClass (test_invalid_ear.InvalidEarTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\alex6\Desktop\프기2_조별과제\test_invalid_ear.py", line 15, in setUpClass
+    build()
+    ~~~~~^^
+  File "C:\Users\alex6\Desktop\프기2_조별과제\build.py", line 31, in build
+    subprocess.run(command, check=True, cwd=ROOT)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alex6\anaconda3\Lib\subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['C:\\Users\\alex6\\AppData\\Local\\Microsoft\\WinGet\\Packages\\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\\mingw64\\bin\\gcc.EXE', '-std=c11', '-O2', '-shared', 'blink_engine.c', '-o', 'blink_engine.dll']' returned non-zero exit status 1.
+
+----------------------------------------------------------------------
+Ran 8 tests in 2.151s
+
+FAILED (errors=1)
+
+exit_code=1

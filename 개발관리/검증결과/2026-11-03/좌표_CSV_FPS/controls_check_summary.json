@@ -1,0 +1,19 @@
+{
+  "date": "2026-11-03",
+  "tests": 24,
+  "passed": 24,
+  "exit_code": 0,
+  "tested_routes": [
+    "Q",
+    "Esc",
+    "window X",
+    "mouse Points then Exit with no key events"
+  ],
+  "real_ui_verification": "pending",
+  "intermittent_key_cause": "not_reproduced",
+  "source_sha256": {
+    "blink_app.py": "f04b438f2df9aa7b51fc52956f54304e3babae91642330c238bf04693103fc21",
+    "test_engine.py": "22ab9987d9d46e7121e5ec29f9dbe12d85b57561aae810ea1f58d8a2f0a63aeb",
+    "test_measurement_log.py": "717cc78c2b368415e5c335019ca6f67314d735edcbcef37d1ee372b9cb21aa58"
+  }
+}

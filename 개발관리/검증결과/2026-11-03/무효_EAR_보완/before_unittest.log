@@ -1,0 +1,292 @@
+빌드 완료: C:\Users\alex6\Desktop\프기2_조별과제\blink_engine.dll
+
+test_missing_face_pauses_observation_and_alert (test_engine.EngineTests.test_missing_face_pauses_observation_and_alert) ... ok
+test_noise_disagreement_and_missing_face (test_engine.EngineTests.test_noise_disagreement_and_missing_face) ... ok
+test_open_closed_open_counts_once (test_engine.EngineTests.test_open_closed_open_counts_once) ... ok
+test_repeated_blinks_count_each_reopening_once (test_engine.EngineTests.test_repeated_blinks_count_each_reopening_once) ... ok
+test_repeated_single_frame_closures_are_filtered (test_engine.EngineTests.test_repeated_single_frame_closures_are_filtered) ... ok
+test_single_frame_reopening_does_not_split_closure (test_engine.EngineTests.test_single_frame_reopening_does_not_split_closure) ... ok
+test_target_change (test_engine.EngineTests.test_target_change) ... ok
+test_window_persistence_and_cooldown (test_engine.EngineTests.test_window_persistence_and_cooldown) ... ok
+test_degenerate_eye_coordinates_do_not_extend_observation (test_invalid_ear.InvalidEarTests.test_degenerate_eye_coordinates_do_not_extend_observation) ... FAIL
+test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) ... 
+  test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=nan, side=0) ... FAIL
+  test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=nan, side=1) ... FAIL
+  test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=inf, side=0) ... FAIL
+  test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=inf, side=1) ... FAIL
+  test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=-inf, side=0) ... FAIL
+  test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=-inf, side=1) ... FAIL
+  test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=-0.1, side=0) ... FAIL
+  test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=-0.1, side=1) ... FAIL
+test_invalid_measurements_pause_pending_alert_and_cooldown (test_invalid_ear.InvalidEarTests.test_invalid_measurements_pause_pending_alert_and_cooldown) ... FAIL
+test_invalid_sample_breaks_closed_to_open_transition (test_invalid_ear.InvalidEarTests.test_invalid_sample_breaks_closed_to_open_transition) ... 
+  test_invalid_sample_breaks_closed_to_open_transition (test_invalid_ear.InvalidEarTests.test_invalid_sample_breaks_closed_to_open_transition) (side=0) ... FAIL
+  test_invalid_sample_breaks_closed_to_open_transition (test_invalid_ear.InvalidEarTests.test_invalid_sample_breaks_closed_to_open_transition) (side=1) ... FAIL
+test_small_finite_ear_is_not_discarded (test_invalid_ear.InvalidEarTests.test_small_finite_ear_is_not_discarded) ... ok
+test_valid_history_survives_and_new_blink_counts_after_recovery (test_invalid_ear.InvalidEarTests.test_valid_history_survives_and_new_blink_counts_after_recovery) ... FAIL
+test_zero_ear_is_valid_closed_input (test_invalid_ear.InvalidEarTests.test_zero_ear_is_valid_closed_input) ... ok
+
+======================================================================
+FAIL: test_degenerate_eye_coordinates_do_not_extend_observation (test_invalid_ear.InvalidEarTests.test_degenerate_eye_coordinates_do_not_extend_observation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\alex6\Desktop\프기2_조별과제\test_invalid_ear.py", line 108, in test_degenerate_eye_coordinates_do_not_extend_observation
+    self.assertEqual((result.active_ms, result.state, result.face_visible), (33, 0, 0))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (66, 1, 1) != (33, 0, 0)
+
+First differing element 0:
+66
+33
+
+- (66, 1, 1)
++ (33, 0, 0)
+
+======================================================================
+FAIL: test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=nan, side=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\alex6\Desktop\프기2_조별과제\test_invalid_ear.py", line 21, in test_either_invalid_eye_pauses_time_and_requires_new_open
+    self.assertEqual((result.active_ms, result.face_visible,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      result.state, result.blink, result.alert),
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (33, 0, 0, 0, 0))
+                     ^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (66, 1, 1, 0, 0) != (33, 0, 0, 0, 0)
+
+First differing element 0:
+66
+33
+
+- (66, 1, 1, 0, 0)
++ (33, 0, 0, 0, 0)
+
+======================================================================
+FAIL: test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=nan, side=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\alex6\Desktop\프기2_조별과제\test_invalid_ear.py", line 21, in test_either_invalid_eye_pauses_time_and_requires_new_open
+    self.assertEqual((result.active_ms, result.face_visible,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      result.state, result.blink, result.alert),
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (33, 0, 0, 0, 0))
+                     ^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (66, 1, 1, 0, 0) != (33, 0, 0, 0, 0)
+
+First differing element 0:
+66
+33
+
+- (66, 1, 1, 0, 0)
++ (33, 0, 0, 0, 0)
+
+======================================================================
+FAIL: test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=inf, side=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\alex6\Desktop\프기2_조별과제\test_invalid_ear.py", line 21, in test_either_invalid_eye_pauses_time_and_requires_new_open
+    self.assertEqual((result.active_ms, result.face_visible,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      result.state, result.blink, result.alert),
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (33, 0, 0, 0, 0))
+                     ^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (66, 1, 1, 0, 0) != (33, 0, 0, 0, 0)
+
+First differing element 0:
+66
+33
+
+- (66, 1, 1, 0, 0)
++ (33, 0, 0, 0, 0)
+
+======================================================================
+FAIL: test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=inf, side=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\alex6\Desktop\프기2_조별과제\test_invalid_ear.py", line 21, in test_either_invalid_eye_pauses_time_and_requires_new_open
+    self.assertEqual((result.active_ms, result.face_visible,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      result.state, result.blink, result.alert),
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (33, 0, 0, 0, 0))
+                     ^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (66, 1, 1, 0, 0) != (33, 0, 0, 0, 0)
+
+First differing element 0:
+66
+33
+
+- (66, 1, 1, 0, 0)
++ (33, 0, 0, 0, 0)
+
+======================================================================
+FAIL: test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=-inf, side=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\alex6\Desktop\프기2_조별과제\test_invalid_ear.py", line 21, in test_either_invalid_eye_pauses_time_and_requires_new_open
+    self.assertEqual((result.active_ms, result.face_visible,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      result.state, result.blink, result.alert),
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (33, 0, 0, 0, 0))
+                     ^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (66, 1, 1, 0, 0) != (33, 0, 0, 0, 0)
+
+First differing element 0:
+66
+33
+
+- (66, 1, 1, 0, 0)
++ (33, 0, 0, 0, 0)
+
+======================================================================
+FAIL: test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=-inf, side=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\alex6\Desktop\프기2_조별과제\test_invalid_ear.py", line 21, in test_either_invalid_eye_pauses_time_and_requires_new_open
+    self.assertEqual((result.active_ms, result.face_visible,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      result.state, result.blink, result.alert),
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (33, 0, 0, 0, 0))
+                     ^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (66, 1, 1, 0, 0) != (33, 0, 0, 0, 0)
+
+First differing element 0:
+66
+33
+
+- (66, 1, 1, 0, 0)
++ (33, 0, 0, 0, 0)
+
+======================================================================
+FAIL: test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=-0.1, side=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\alex6\Desktop\프기2_조별과제\test_invalid_ear.py", line 21, in test_either_invalid_eye_pauses_time_and_requires_new_open
+    self.assertEqual((result.active_ms, result.face_visible,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      result.state, result.blink, result.alert),
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (33, 0, 0, 0, 0))
+                     ^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (66, 1, 1, 0, 0) != (33, 0, 0, 0, 0)
+
+First differing element 0:
+66
+33
+
+- (66, 1, 1, 0, 0)
++ (33, 0, 0, 0, 0)
+
+======================================================================
+FAIL: test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=-0.1, side=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\alex6\Desktop\프기2_조별과제\test_invalid_ear.py", line 21, in test_either_invalid_eye_pauses_time_and_requires_new_open
+    self.assertEqual((result.active_ms, result.face_visible,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      result.state, result.blink, result.alert),
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (33, 0, 0, 0, 0))
+                     ^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (66, 1, 1, 0, 0) != (33, 0, 0, 0, 0)
+
+First differing element 0:
+66
+33
+
+- (66, 1, 1, 0, 0)
++ (33, 0, 0, 0, 0)
+
+======================================================================
+FAIL: test_invalid_measurements_pause_pending_alert_and_cooldown (test_invalid_ear.InvalidEarTests.test_invalid_measurements_pause_pending_alert_and_cooldown)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\alex6\Desktop\프기2_조별과제\test_invalid_ear.py", line 69, in test_invalid_measurements_pause_pending_alert_and_cooldown
+    self.assertEqual((result.alert, result.active_ms, result.low_for_ms), (0, 65000, 5000))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, 66000, 6000) != (0, 65000, 5000)
+
+First differing element 1:
+66000
+65000
+
+- (0, 66000, 6000)
+?      ^     ^
+
++ (0, 65000, 5000)
+?      ^     ^
+
+
+======================================================================
+FAIL: test_invalid_sample_breaks_closed_to_open_transition (test_invalid_ear.InvalidEarTests.test_invalid_sample_breaks_closed_to_open_transition) (side=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\alex6\Desktop\프기2_조별과제\test_invalid_ear.py", line 42, in test_invalid_sample_breaks_closed_to_open_transition
+    self.assertEqual((result.blink, result.count_60s, result.state), (0, 0, 1))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, 1, 1) != (0, 0, 1)
+
+First differing element 0:
+1
+0
+
+- (1, 1, 1)
+?  ^  ^
+
++ (0, 0, 1)
+?  ^  ^
+
+
+======================================================================
+FAIL: test_invalid_sample_breaks_closed_to_open_transition (test_invalid_ear.InvalidEarTests.test_invalid_sample_breaks_closed_to_open_transition) (side=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\alex6\Desktop\프기2_조별과제\test_invalid_ear.py", line 42, in test_invalid_sample_breaks_closed_to_open_transition
+    self.assertEqual((result.blink, result.count_60s, result.state), (0, 0, 1))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, 1, 1) != (0, 0, 1)
+
+First differing element 0:
+1
+0
+
+- (1, 1, 1)
+?  ^  ^
+
++ (0, 0, 1)
+?  ^  ^
+
+
+======================================================================
+FAIL: test_valid_history_survives_and_new_blink_counts_after_recovery (test_invalid_ear.InvalidEarTests.test_valid_history_survives_and_new_blink_counts_after_recovery)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\alex6\Desktop\프기2_조별과제\test_invalid_ear.py", line 52, in test_valid_history_survives_and_new_blink_counts_after_recovery
+    self.assertEqual((result.active_ms, result.count_60s, result.alert),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (165, 1, 0))
+                     ^^^^^^^^^^^^
+AssertionError: Tuples differ: (198, 1, 0) != (165, 1, 0)
+
+First differing element 0:
+198
+165
+
+- (198, 1, 0)
+?   ^^
+
++ (165, 1, 0)
+?   ^^
+
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.817s
+
+FAILED (failures=13)
+
+exit_code=1

@@ -1,0 +1,460 @@
+{
+  "profile": {
+    "id": "A_lower_012",
+    "kind": "threshold",
+    "defaults": {
+      "closed_ear": 0.1,
+      "open_ear": 0.12
+    }
+  },
+  "recordings": [
+    {
+      "file": "blink_20261103_114133_631762.csv",
+      "events": 10,
+      "extra_events": 0,
+      "decisions": [
+        {
+          "frame": "83",
+          "elapsed_ms": "2797.564",
+          "left_ear": "0.16012083701488453",
+          "right_ear": "0.16998403429295042",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 1,
+          "active_ms": 2638,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "155",
+          "elapsed_ms": "5201.063",
+          "left_ear": "0.1966531997743643",
+          "right_ear": "0.20370054294633738",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 2,
+          "active_ms": 5042,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "229",
+          "elapsed_ms": "7674.194",
+          "left_ear": "0.15938692746234046",
+          "right_ear": "0.17013501257412067",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 3,
+          "active_ms": 7515,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "266",
+          "elapsed_ms": "8892.641",
+          "left_ear": "0.19147050516535744",
+          "right_ear": "0.21015638602180323",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 4,
+          "active_ms": 8733,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "300",
+          "elapsed_ms": "10011.966",
+          "left_ear": "0.1679291241958701",
+          "right_ear": "0.1824166108277037",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 5,
+          "active_ms": 9853,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "321",
+          "elapsed_ms": "10726.145",
+          "left_ear": "0.1602122998302734",
+          "right_ear": "0.18078070477366856",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 6,
+          "active_ms": 10567,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "558",
+          "elapsed_ms": "18614.625",
+          "left_ear": "0.17874432667483678",
+          "right_ear": "0.18738741703893427",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 7,
+          "active_ms": 18455,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "594",
+          "elapsed_ms": "19834.703",
+          "left_ear": "0.2025761377467272",
+          "right_ear": "0.20950861918329233",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 8,
+          "active_ms": 19675,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "689",
+          "elapsed_ms": "22984.39",
+          "left_ear": "0.15793020591602513",
+          "right_ear": "0.17768331840756355",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 9,
+          "active_ms": 22825,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "735",
+          "elapsed_ms": "24509.141",
+          "left_ear": "0.21315660845964443",
+          "right_ear": "0.2327161518523714",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 10,
+          "active_ms": 24350,
+          "alert": 0,
+          "decision": "normal_reopen"
+        }
+      ]
+    },
+    {
+      "file": "blink_20261103_114257_575690.csv",
+      "events": 6,
+      "extra_events": 0,
+      "decisions": [
+        {
+          "frame": "57",
+          "elapsed_ms": "1849.259",
+          "left_ear": "0.21652479480370868",
+          "right_ear": "0.24530090373028224",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 1,
+          "active_ms": 1660,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "95",
+          "elapsed_ms": "3136.136",
+          "left_ear": "0.21478743128486355",
+          "right_ear": "0.23014577011308332",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 2,
+          "active_ms": 2946,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "124",
+          "elapsed_ms": "4101.306",
+          "left_ear": "0.18222061399336434",
+          "right_ear": "0.2095081130197888",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 3,
+          "active_ms": 3912,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "130",
+          "elapsed_ms": "4290.823",
+          "left_ear": "0.22934481640368065",
+          "right_ear": "0.248407415677373",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 4,
+          "active_ms": 4101,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "163",
+          "elapsed_ms": "5404.681",
+          "left_ear": "0.23333534188106042",
+          "right_ear": "0.25593483792405436",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 5,
+          "active_ms": 5215,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "192",
+          "elapsed_ms": "6354.55",
+          "left_ear": "0.24223991607683795",
+          "right_ear": "0.2521538721491049",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 6,
+          "active_ms": 6165,
+          "alert": 0,
+          "decision": "normal_reopen"
+        }
+      ]
+    }
+  ],
+  "synthetic": [
+    {
+      "id": "single",
+      "kind": "check",
+      "expected": 1,
+      "actual": 1,
+      "events_ms": [
+        396
+      ],
+      "assertion": "total events",
+      "asserted_value": 1,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "clear_double",
+      "kind": "check",
+      "expected": 2,
+      "actual": 2,
+      "events_ms": [
+        396,
+        693
+      ],
+      "assertion": "total events",
+      "asserted_value": 2,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "clear_triple",
+      "kind": "check",
+      "expected": 3,
+      "actual": 3,
+      "events_ms": [
+        396,
+        693,
+        990
+      ],
+      "assertion": "total events",
+      "asserted_value": 3,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "long_constant",
+      "kind": "check",
+      "expected": 1,
+      "actual": 1,
+      "events_ms": [
+        5148
+      ],
+      "assertion": "total events",
+      "asserted_value": 1,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "long_small_jitter",
+      "kind": "check",
+      "expected": 1,
+      "actual": 1,
+      "events_ms": [
+        3102
+      ],
+      "assertion": "total events",
+      "asserted_value": 1,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "long_correlated_jitter",
+      "kind": "check",
+      "expected": 1,
+      "actual": 1,
+      "events_ms": [
+        3630
+      ],
+      "assertion": "total events",
+      "asserted_value": 1,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "one_eye_rise",
+      "kind": "check",
+      "expected": 1,
+      "actual": 1,
+      "events_ms": [
+        693
+      ],
+      "assertion": "total events",
+      "asserted_value": 1,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "one_eye_winks",
+      "kind": "check",
+      "expected": 0,
+      "actual": 0,
+      "events_ms": [],
+      "assertion": "total events",
+      "asserted_value": 0,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "missing_break",
+      "kind": "check",
+      "expected": 0,
+      "actual": 1,
+      "events_ms": [
+        396
+      ],
+      "assertion": "no event after invalid/missing break",
+      "asserted_value": 0,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "invalid_break",
+      "kind": "check",
+      "expected": 0,
+      "actual": 1,
+      "events_ms": [
+        396
+      ],
+      "assertion": "no event after invalid/missing break",
+      "asserted_value": 0,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "single_open_noise",
+      "kind": "check",
+      "expected": 1,
+      "actual": 1,
+      "events_ms": [
+        627
+      ],
+      "assertion": "total events",
+      "asserted_value": 1,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "rise_then_normal_open",
+      "kind": "check",
+      "expected": 1,
+      "actual": 1,
+      "events_ms": [
+        396
+      ],
+      "assertion": "total events",
+      "asserted_value": 1,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "timed_double_16ms",
+      "kind": "check",
+      "expected": 2,
+      "actual": 2,
+      "events_ms": [
+        416,
+        816
+      ],
+      "assertion": "total events",
+      "asserted_value": 2,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "timed_double_33ms",
+      "kind": "check",
+      "expected": 2,
+      "actual": 2,
+      "events_ms": [
+        462,
+        858
+      ],
+      "assertion": "total events",
+      "asserted_value": 2,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "timed_double_67ms",
+      "kind": "check",
+      "expected": 2,
+      "actual": 2,
+      "events_ms": [
+        469,
+        871
+      ],
+      "assertion": "total events",
+      "asserted_value": 2,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "ambiguous_closed_artifact",
+      "kind": "ambiguous",
+      "expected": [
+        1,
+        2
+      ],
+      "actual": 2,
+      "events_ms": [
+        396,
+        693
+      ],
+      "assertion": "total events",
+      "asserted_value": 2,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": null
+    }
+  ],
+  "regression": {
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "failure_cases": [],
+    "caveat": "Threshold profile defaults apply only where test callers do not explicitly supply settings; app mocks keep explicit CLI defaults."
+  },
+  "synthetic_failures": []
+}

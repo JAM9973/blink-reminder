@@ -1,0 +1,17 @@
+빌드 완료: C:\Users\alex6\Desktop\프기2_조별과제\blink_engine.dll
+
+test_missing_face_pauses_observation_and_alert (test_engine.EngineTests.test_missing_face_pauses_observation_and_alert) ... ok
+test_noise_disagreement_and_missing_face (test_engine.EngineTests.test_noise_disagreement_and_missing_face) ... ok
+test_open_closed_open_counts_once (test_engine.EngineTests.test_open_closed_open_counts_once) ... ok
+test_repeated_blinks_count_each_reopening_once (test_engine.EngineTests.test_repeated_blinks_count_each_reopening_once) ... ok
+test_repeated_single_frame_closures_are_filtered (test_engine.EngineTests.test_repeated_single_frame_closures_are_filtered) ... ok
+test_single_frame_reopening_does_not_split_closure (test_engine.EngineTests.test_single_frame_reopening_does_not_split_closure) ... ok
+test_target_change (test_engine.EngineTests.test_target_change) ... ok
+test_window_persistence_and_cooldown (test_engine.EngineTests.test_window_persistence_and_cooldown) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.739s
+
+OK
+
+exit_code=0

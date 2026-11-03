@@ -19,6 +19,7 @@ struct BlinkEngine {
     int state;              /* confirmed eye state */
     int candidate;          /* current candidate state */
     int candidate_frames;   /* consecutive matching frames */
+    int stable_frames;
     int previous_face;
     int has_timestamp;
     int64_t previous_ms;
@@ -45,6 +46,7 @@ BLINK_API BlinkEngine *be_create(int target_count, double closed_ear,
     e->open_ear = open_ear;
     e->low_duration_ms = low_duration_ms;
     e->cooldown_ms = cooldown_ms;
+    e->stable_frames = STABLE_FRAMES;
     e->low_since_ms = -1;
     e->last_alert_ms = -1;
     return e;
@@ -56,6 +58,15 @@ BLINK_API int be_set_target(BlinkEngine *e, int target_count) {
     if (!e || target_count < 0) return 0;
     e->target = target_count;
     e->low_since_ms = -1;
+    return 1;
+}
+
+BLINK_API int be_set_stable_frames(BlinkEngine *e, int stable_frames) {
+    if (!e || stable_frames < 1 || stable_frames > 30) return 0;
+    e->stable_frames = stable_frames;
+    e->state = UNKNOWN;
+    e->candidate = UNKNOWN;
+    e->candidate_frames = 0;
     return 1;
 }
 
@@ -100,7 +111,11 @@ BLINK_API int be_update(BlinkEngine *e, double left_ear, double right_ear,
     if (!e || !out || monotonic_ms < 0) return 0;
     if (e->has_timestamp && monotonic_ms < e->previous_ms) return 0;
     if (e->has_timestamp) delta = monotonic_ms - e->previous_ms;
-    /* Missing face and long frame gaps never add to observation time. */
+    /* Treat unusable EAR as a missing observation, before advancing time or
+       connecting eye states. Zero remains a valid fully closed-eye input. */
+    face_visible = face_visible && isfinite(left_ear) && isfinite(right_ear) &&
+                   left_ear >= 0 && right_ear >= 0;
+    /* Missing/invalid observations and long gaps never add observation time. */
     if (face_visible && e->previous_face && delta <= MAX_GAP_MS)
         e->active_ms += delta;
     e->previous_ms = monotonic_ms;
@@ -121,11 +136,13 @@ BLINK_API int be_update(BlinkEngine *e, double left_ear, double right_ear,
             if (candidate != e->candidate) {
                 e->candidate = candidate;
                 e->candidate_frames = 1;
-            } else if (e->candidate_frames < STABLE_FRAMES) {
+            } else if (e->candidate_frames < e->stable_frames) {
                 e->candidate_frames++;
             }
-            /* A state change needs two consecutive matching frames. */
-            if (e->candidate_frames >= STABLE_FRAMES && candidate != e->state) {
+            /* Establish OPEN before accepting the first closure. */
+            if (e->state == UNKNOWN && candidate == CLOSED) {
+                e->candidate_frames = 0;
+            } else if (e->candidate_frames >= e->stable_frames && candidate != e->state) {
                 /* One closed -> open transition is exactly one blink. */
                 if (e->state == CLOSED && candidate == OPEN) {
                     blink = 1;

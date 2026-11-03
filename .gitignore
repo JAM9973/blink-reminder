@@ -8,4 +8,15 @@ __pycache__/
 *.exp
 models/
 .venv/
+.venv-linux/
+.venv-win/
+windows-checkpoints/
 .cache/
+.pptx-build/
+.codex-finalizer/
+data/records/
+.docx-build/
+*.exe
+~$*
+개발관리/검증결과/**/T08A/inputs/
+개발관리/검증결과/**/T08A/candidates/**/blink_*.csv

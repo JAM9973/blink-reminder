@@ -1,0 +1,460 @@
+{
+  "profile": {
+    "id": "A_one_frame",
+    "kind": "threshold",
+    "defaults": {
+      "stable_frames": 1
+    }
+  },
+  "recordings": [
+    {
+      "file": "blink_20261103_114133_631762.csv",
+      "events": 10,
+      "extra_events": 0,
+      "decisions": [
+        {
+          "frame": "87",
+          "elapsed_ms": "2930.893",
+          "left_ear": "0.27643914148436527",
+          "right_ear": "0.24491888945052348",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 1,
+          "active_ms": 2772,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "156",
+          "elapsed_ms": "5234.336",
+          "left_ear": "0.2324095947554109",
+          "right_ear": "0.23599375131911027",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 2,
+          "active_ms": 5075,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "232",
+          "elapsed_ms": "7783.677",
+          "left_ear": "0.23513339496240412",
+          "right_ear": "0.24054531349592764",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 3,
+          "active_ms": 7624,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "269",
+          "elapsed_ms": "8994.469",
+          "left_ear": "0.23240515984393337",
+          "right_ear": "0.2367086138771047",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 4,
+          "active_ms": 8835,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "305",
+          "elapsed_ms": "10180.614",
+          "left_ear": "0.2322386128866751",
+          "right_ear": "0.235124752462254",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 5,
+          "active_ms": 10021,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "326",
+          "elapsed_ms": "10891.229",
+          "left_ear": "0.24229955241818157",
+          "right_ear": "0.2341201579358612",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 6,
+          "active_ms": 10732,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "562",
+          "elapsed_ms": "18751.27",
+          "left_ear": "0.23863042929318343",
+          "right_ear": "0.2469561499703461",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 7,
+          "active_ms": 18592,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "596",
+          "elapsed_ms": "19902.68",
+          "left_ear": "0.24939925696384793",
+          "right_ear": "0.260410265649518",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 8,
+          "active_ms": 19743,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "707",
+          "elapsed_ms": "23594.528",
+          "left_ear": "0.2311571678660321",
+          "right_ear": "0.24290768350023484",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 9,
+          "active_ms": 23435,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "736",
+          "elapsed_ms": "24542.51",
+          "left_ear": "0.23930021905920595",
+          "right_ear": "0.25104692264040185",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 10,
+          "active_ms": 24383,
+          "alert": 0,
+          "decision": "normal_reopen"
+        }
+      ]
+    },
+    {
+      "file": "blink_20261103_114257_575690.csv",
+      "events": 5,
+      "extra_events": 0,
+      "decisions": [
+        {
+          "frame": "58",
+          "elapsed_ms": "1883.769",
+          "left_ear": "0.2462209105722679",
+          "right_ear": "0.25904099338996434",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 1,
+          "active_ms": 1694,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "96",
+          "elapsed_ms": "3171.098",
+          "left_ear": "0.2487379609420763",
+          "right_ear": "0.2656250308154886",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 2,
+          "active_ms": 2981,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "131",
+          "elapsed_ms": "4325.177",
+          "left_ear": "0.2503817215779735",
+          "right_ear": "0.26558257923531237",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 3,
+          "active_ms": 4136,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "163",
+          "elapsed_ms": "5404.681",
+          "left_ear": "0.23333534188106042",
+          "right_ear": "0.25593483792405436",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 4,
+          "active_ms": 5215,
+          "alert": 0,
+          "decision": "normal_reopen"
+        },
+        {
+          "frame": "192",
+          "elapsed_ms": "6354.55",
+          "left_ear": "0.24223991607683795",
+          "right_ear": "0.2521538721491049",
+          "blink": 1,
+          "state": 1,
+          "count_60s": 5,
+          "active_ms": 6165,
+          "alert": 0,
+          "decision": "normal_reopen"
+        }
+      ]
+    }
+  ],
+  "synthetic": [
+    {
+      "id": "single",
+      "kind": "check",
+      "expected": 1,
+      "actual": 1,
+      "events_ms": [
+        363
+      ],
+      "assertion": "total events",
+      "asserted_value": 1,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "clear_double",
+      "kind": "check",
+      "expected": 2,
+      "actual": 1,
+      "events_ms": [
+        660
+      ],
+      "assertion": "total events",
+      "asserted_value": 1,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": false
+    },
+    {
+      "id": "clear_triple",
+      "kind": "check",
+      "expected": 3,
+      "actual": 1,
+      "events_ms": [
+        957
+      ],
+      "assertion": "total events",
+      "asserted_value": 1,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": false
+    },
+    {
+      "id": "long_constant",
+      "kind": "check",
+      "expected": 1,
+      "actual": 1,
+      "events_ms": [
+        5115
+      ],
+      "assertion": "total events",
+      "asserted_value": 1,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "long_small_jitter",
+      "kind": "check",
+      "expected": 1,
+      "actual": 1,
+      "events_ms": [
+        3069
+      ],
+      "assertion": "total events",
+      "asserted_value": 1,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "long_correlated_jitter",
+      "kind": "check",
+      "expected": 1,
+      "actual": 1,
+      "events_ms": [
+        3597
+      ],
+      "assertion": "total events",
+      "asserted_value": 1,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "one_eye_rise",
+      "kind": "check",
+      "expected": 1,
+      "actual": 1,
+      "events_ms": [
+        660
+      ],
+      "assertion": "total events",
+      "asserted_value": 1,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "one_eye_winks",
+      "kind": "check",
+      "expected": 0,
+      "actual": 0,
+      "events_ms": [],
+      "assertion": "total events",
+      "asserted_value": 0,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "missing_break",
+      "kind": "check",
+      "expected": 0,
+      "actual": 0,
+      "events_ms": [],
+      "assertion": "no event after invalid/missing break",
+      "asserted_value": 0,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "invalid_break",
+      "kind": "check",
+      "expected": 0,
+      "actual": 0,
+      "events_ms": [],
+      "assertion": "no event after invalid/missing break",
+      "asserted_value": 0,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "single_open_noise",
+      "kind": "check",
+      "expected": 1,
+      "actual": 2,
+      "events_ms": [
+        363,
+        594
+      ],
+      "assertion": "total events",
+      "asserted_value": 2,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": false
+    },
+    {
+      "id": "rise_then_normal_open",
+      "kind": "check",
+      "expected": 1,
+      "actual": 1,
+      "events_ms": [
+        462
+      ],
+      "assertion": "total events",
+      "asserted_value": 1,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": true
+    },
+    {
+      "id": "timed_double_16ms",
+      "kind": "check",
+      "expected": 2,
+      "actual": 1,
+      "events_ms": [
+        800
+      ],
+      "assertion": "total events",
+      "asserted_value": 1,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": false
+    },
+    {
+      "id": "timed_double_33ms",
+      "kind": "check",
+      "expected": 2,
+      "actual": 1,
+      "events_ms": [
+        825
+      ],
+      "assertion": "total events",
+      "asserted_value": 1,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": false
+    },
+    {
+      "id": "timed_double_67ms",
+      "kind": "check",
+      "expected": 2,
+      "actual": 1,
+      "events_ms": [
+        804
+      ],
+      "assertion": "total events",
+      "asserted_value": 1,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": false
+    },
+    {
+      "id": "ambiguous_closed_artifact",
+      "kind": "ambiguous",
+      "expected": [
+        1,
+        2
+      ],
+      "actual": 1,
+      "events_ms": [
+        660
+      ],
+      "assertion": "total events",
+      "asserted_value": 1,
+      "window_count_consistent": true,
+      "events_expired": true,
+      "passed": null
+    }
+  ],
+  "regression": {
+    "tests": 24,
+    "failures": 15,
+    "errors": 0,
+    "failure_cases": [
+      "test_noise_disagreement_and_missing_face (test_engine.EngineTests.test_noise_disagreement_and_missing_face)",
+      "test_open_closed_open_counts_once (test_engine.EngineTests.test_open_closed_open_counts_once)",
+      "test_repeated_single_frame_closures_are_filtered (test_engine.EngineTests.test_repeated_single_frame_closures_are_filtered)",
+      "test_single_frame_reopening_does_not_split_closure (test_engine.EngineTests.test_single_frame_reopening_does_not_split_closure)",
+      "test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=nan, side=0)",
+      "test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=nan, side=1)",
+      "test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=inf, side=0)",
+      "test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=inf, side=1)",
+      "test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=-inf, side=0)",
+      "test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=-inf, side=1)",
+      "test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=-0.1, side=0)",
+      "test_either_invalid_eye_pauses_time_and_requires_new_open (test_invalid_ear.InvalidEarTests.test_either_invalid_eye_pauses_time_and_requires_new_open) (bad=-0.1, side=1)",
+      "test_small_finite_ear_is_not_discarded (test_invalid_ear.InvalidEarTests.test_small_finite_ear_is_not_discarded)",
+      "test_valid_history_survives_and_new_blink_counts_after_recovery (test_invalid_ear.InvalidEarTests.test_valid_history_survives_and_new_blink_counts_after_recovery)",
+      "test_zero_ear_is_valid_closed_input (test_invalid_ear.InvalidEarTests.test_zero_ear_is_valid_closed_input)"
+    ],
+    "caveat": "Threshold profile defaults apply only where test callers do not explicitly supply settings; app mocks keep explicit CLI defaults."
+  },
+  "synthetic_failures": [
+    "clear_double",
+    "clear_triple",
+    "single_open_noise",
+    "timed_double_16ms",
+    "timed_double_33ms",
+    "timed_double_67ms"
+  ]
+}

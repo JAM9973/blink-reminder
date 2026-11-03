@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-03",
+  "checks": [
+    {
+      "file": "blink_20261103_114133_631762.csv",
+      "replayed_rows": 820,
+      "all_recorded_outputs_match": true
+    },
+    {
+      "file": "blink_20261103_114257_575690.csv",
+      "replayed_rows": 284,
+      "all_recorded_outputs_match": true
+    }
+  ],
+  "scope": "Recorded EAR replay only; no new camera capture or production code changes"
+}

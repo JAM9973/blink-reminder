@@ -22,10 +22,12 @@ def build() -> Path:
 
     compiler = shutil.which("gcc") or shutil.which("clang")
     if compiler:
-        command = [compiler, "-std=c11", "-O2", "-shared", "-fPIC",
-                   str(SOURCE), "-o", str(output)]
+        # Keep file arguments relative: some Windows GCC builds cannot decode
+        # a Korean absolute path passed through argv.
+        command = [compiler, "-std=c11", "-O2", "-shared",
+                   SOURCE.name, "-o", output.name]
         if system != "Windows":
-            command.append("-lm")
+            command.extend(["-fPIC", "-lm"])
         subprocess.run(command, check=True, cwd=ROOT)
     elif system == "Windows":
         roots = [Path(os.environ.get("ProgramFiles", "C:/Program Files")),
@@ -37,7 +39,7 @@ def build() -> Path:
         if not scripts:
             raise RuntimeError("C 컴파일러가 없습니다. Visual Studio C++ 빌드 도구를 설치하세요.")
         script = sorted(scripts, reverse=True)[0]
-        command = f'call "{script}" >nul && cl /nologo /O2 /LD /Fe:"{output}" "{SOURCE}"'
+        command = f'call "{script}" >nul && cl /nologo /O2 /LD /Fe:"{output.name}" "{SOURCE.name}"'
         subprocess.run(command, check=True, cwd=ROOT, shell=True)
     else:
         raise RuntimeError("gcc 또는 clang 컴파일러가 필요합니다.")

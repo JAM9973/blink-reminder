@@ -1,0 +1,1 @@
+C:\Users\alex6\AppData\Local\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin\gcc.EXE -std=c11 -O2 -shared -Wall -Wextra -Werror blink_engine.c -o blink_engine.dll -DREBOUND_RISE=0.04 -DREBOUND_FALL=0.04 -DREBOUND_FLOOR=0.06

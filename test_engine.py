@@ -2,14 +2,16 @@
 
 import unittest
 
-from build import build
 from engine import BlinkEngine
 
 
 class EngineTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        build()
+        # BlinkEngine builds only if sources changed. Rebuilding an unchanged
+        # DLL fails on Windows while the user has the webcam app running.
+        with BlinkEngine():
+            pass
 
     def test_open_closed_open_counts_once(self):
         with BlinkEngine() as engine:
@@ -70,6 +72,55 @@ class EngineTests(unittest.TestCase):
             self.assertFalse(result.alert)
             engine.set_target(1)
             self.assertTrue(engine.update(.30, .30, True, 61_000).alert)
+
+    def test_repeated_blinks_count_each_reopening_once(self):
+        # Synthetic sampling intervals, not measured camera FPS or human rates.
+        for interval_ms in (16, 33, 100):
+            for frames_per_state in (2, 3, 6):
+                with self.subTest(interval_ms=interval_ms,
+                                  frames_per_state=frames_per_state):
+                    with BlinkEngine() as engine:
+                        timestamp = 0
+                        events = 0
+                        for _ in range(frames_per_state):
+                            result = engine.update(.30, .30, True, timestamp)
+                            self.assertEqual((result.blink, result.count_60s), (0, 0))
+                            timestamp += interval_ms
+                        for expected in range(1, 11):
+                            for _ in range(frames_per_state):
+                                result = engine.update(.10, .10, True, timestamp)
+                                self.assertEqual((result.blink, result.count_60s),
+                                                 (0, expected - 1))
+                                timestamp += interval_ms
+                            cycle_events = 0
+                            for _ in range(frames_per_state):
+                                result = engine.update(.30, .30, True, timestamp)
+                                cycle_events += result.blink
+                                timestamp += interval_ms
+                            self.assertEqual(cycle_events, 1)
+                            self.assertEqual(result.count_60s, expected)
+                            events += cycle_events
+                        self.assertEqual(events, 10)
+
+    def test_repeated_single_frame_closures_are_filtered(self):
+        with BlinkEngine() as engine:
+            readings = [.30, .30] + [.10, .30, .30] * 10
+            for frame, ear in enumerate(readings):
+                result = engine.update(ear, ear, True, frame * 33)
+                self.assertEqual((result.blink, result.count_60s), (0, 0))
+
+    def test_single_frame_reopening_does_not_split_closure(self):
+        with BlinkEngine() as engine:
+            # Two apparent closures separated by only one OPEN sample are
+            # one confirmed closure under the existing two-frame policy.
+            readings = [.30, .30, .10, .10, .30, .10, .10, .30, .30, .30]
+            events = []
+            for frame, ear in enumerate(readings):
+                result = engine.update(ear, ear, True, frame * 33)
+                if result.blink:
+                    events.append(frame)
+            self.assertEqual(events, [8])
+            self.assertEqual(result.count_60s, 1)
 
 
 if __name__ == "__main__":

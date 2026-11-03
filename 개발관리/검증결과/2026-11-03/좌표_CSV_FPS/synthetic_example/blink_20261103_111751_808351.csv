@@ -1,0 +1,11 @@
+﻿local_time,frame_index,monotonic_ms,elapsed_ms,active_ms,frame_interval_ms,fps,face_detected,measurement_valid,left_ear,right_ear,eye_state,blink,count_60s,alert,low_for_ms,target,closed_ear,open_ear,stable_frames,low_seconds,cooldown_seconds,landmarks_visible
+synthetic-frame-0,1,0,0.0,0,,,1,1,0.3,0.3,0,0,0,0,0,12,0.18,0.23,2,10,60,1
+synthetic-frame-1,2,33,33.0,33,33.0,30.303,1,1,0.3,0.3,1,0,0,0,0,12,0.18,0.23,2,10,60,1
+synthetic-frame-2,3,66,66.0,66,33.0,30.303,1,1,0.1,0.1,1,0,0,0,0,12,0.18,0.23,2,10,60,1
+synthetic-frame-3,4,99,99.0,99,33.0,30.303,1,1,0.1,0.1,2,0,0,0,0,12,0.18,0.23,2,10,60,1
+synthetic-frame-4,5,132,132.0,132,33.0,30.303,1,1,0.3,0.3,2,0,0,0,0,12,0.18,0.23,2,10,60,1
+synthetic-frame-5,6,165,165.0,165,33.0,30.303,1,1,0.3,0.3,1,1,1,0,0,12,0.18,0.23,2,10,60,1
+synthetic-frame-6,7,198,198.0,165,33.0,30.303,0,0,,,0,0,1,0,0,12,0.18,0.23,2,10,60,1
+synthetic-frame-7,8,231,231.0,165,33.0,30.303,1,0,nan,0.3,0,0,1,0,0,12,0.18,0.23,2,10,60,1
+synthetic-frame-8,9,264,264.0,165,33.0,30.303,1,1,0.3,0.3,0,0,1,0,0,12,0.18,0.23,2,10,60,1
+synthetic-frame-9,10,297,297.0,198,33.0,30.303,1,1,0.3,0.3,1,0,1,0,0,12,0.18,0.23,2,10,60,1

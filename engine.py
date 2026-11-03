@@ -19,20 +19,26 @@ class BlinkOutput(ctypes.Structure):
 
 class BlinkEngine:
     def __init__(self, target=12, closed_ear=0.18, open_ear=0.23,
-                 low_seconds=10, cooldown_seconds=60):
+                 low_seconds=10, cooldown_seconds=60, stable_frames=2):
         root = Path(__file__).resolve().parent
         name = "blink_engine.dll" if sys.platform == "win32" else (
             "libblink_engine.dylib" if sys.platform == "darwin" else "libblink_engine.so")
         path = root / name
-        if not path.exists():
-            raise FileNotFoundError(f"{path} 파일이 없습니다. 먼저 python build.py를 실행하세요.")
+        sources = [root / "blink_engine.c", root / "blink_engine.h"]
+        if not path.exists() or any(p.stat().st_mtime_ns > path.stat().st_mtime_ns
+                                     for p in sources):
+            from build import build
+            build()
         self._lib = ctypes.CDLL(str(path))
         self._lib.be_create.argtypes = [ctypes.c_int, ctypes.c_double, ctypes.c_double,
                                         ctypes.c_int, ctypes.c_int]
         self._lib.be_create.restype = ctypes.c_void_p
         self._lib.be_destroy.argtypes = [ctypes.c_void_p]
+        self._lib.be_destroy.restype = None
         self._lib.be_set_target.argtypes = [ctypes.c_void_p, ctypes.c_int]
         self._lib.be_set_target.restype = ctypes.c_int
+        self._lib.be_set_stable_frames.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        self._lib.be_set_stable_frames.restype = ctypes.c_int
         self._lib.be_update.argtypes = [ctypes.c_void_p, ctypes.c_double,
                                         ctypes.c_double, ctypes.c_int,
                                         ctypes.c_int64, ctypes.POINTER(BlinkOutput)]
@@ -42,6 +48,9 @@ class BlinkEngine:
                                             int(cooldown_seconds * 1000))
         if not self._handle:
             raise ValueError("기준 횟수와 눈 비율·시간 설정을 확인하세요.")
+        if not self._lib.be_set_stable_frames(self._handle, stable_frames):
+            self.close()
+            raise ValueError("연속 확인 프레임 수는 1~30이어야 합니다.")
         self.target = target
 
     def set_target(self, value):
@@ -50,6 +59,11 @@ class BlinkEngine:
         self.target = value
 
     def update(self, left_ear, right_ear, face_visible, monotonic_ms):
+        """Return C output; face_visible is false for absent or unusable input.
+
+        Invalid EAR pauses observation and resets eye state without clearing
+        previously counted blinks. The C boundary enforces this for all callers.
+        """
         result = BlinkOutput()
         ok = self._lib.be_update(self._handle, left_ear, right_ear,
                                  int(face_visible), int(monotonic_ms),
