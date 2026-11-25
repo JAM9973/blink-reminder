@@ -11,6 +11,7 @@ from unittest.mock import Mock, patch
 from uuid import uuid4
 
 import blink_app
+import app_runtime
 from measurement_log import FrameRate, SessionRecorder
 
 
@@ -71,7 +72,11 @@ class MeasurementLogTests(unittest.TestCase):
 
     def run_synthetic_app(self, directory, *, no_csv=False, fail_read=False,
                           recorder_factory=None, exit_key=None, close_window=False,
-                          mouse_commands=None):
+                          mouse_commands=None, mode="baseline", rapid_fixture=False,
+                          desktop_actions=None, background=False, clock_ms=None,
+                          desktop_observer=None, preview=True, no_keys=False,
+                          notification_start="pill", notification_cli=None, controls_error=None,
+                          alert_shown=True):
         import cv2
         import numpy as np
 
@@ -83,6 +88,10 @@ class MeasurementLogTests(unittest.TestCase):
                        SimpleNamespace(face_landmarks=[eye_landmarks(float("nan"))])]
         detections += [SimpleNamespace(face_landmarks=[eye_landmarks()])
                        for _ in timestamps[8:]]
+        if rapid_fixture:
+            ears = [.30]*5 + [.04]*6 + [.12]*3 + [.04]*6 + [.30]*4
+            timestamps = [frame * 33 for frame in range(len(ears))]
+            detections = [SimpleNamespace(face_landmarks=[eye_landmarks(ear)]) for ear in ears]
         capture = Mock()
         capture.isOpened.return_value = True
         capture.read.side_effect = [(True, np.zeros((100, 200, 3), dtype=np.uint8))
@@ -114,6 +123,8 @@ class MeasurementLogTests(unittest.TestCase):
         fake_cv.waitKey = Mock(side_effect=keys + [-1] * (len(timestamps) - 5) + [ord("q")])
         if exit_key is not None or close_window:
             fake_cv.waitKey = Mock(return_value=exit_key if exit_key is not None else -1)
+        if no_keys:
+            fake_cv.waitKey = Mock(return_value=-1)
         if mouse_commands:
             commands = iter(mouse_commands)
 
@@ -143,18 +154,43 @@ class MeasurementLogTests(unittest.TestCase):
         model = directory / "synthetic.task"
         model.write_bytes(b"synthetic detector - not a real MediaPipe model")
         args = blink_app.parse_args(["--csv-dir", str(directory), "--model", str(model),
-                                     "--low-seconds", "0"] + (["--no-csv"] if no_csv else []))
+                                     "--low-seconds", "0", "--mode", mode]
+                                    + (["--no-csv"] if no_csv else [])
+                                    + (["--desktop"] if desktop_actions is not None else [])
+                                    + (["--background"] if background else [])
+                                    + (["--preview"] if preview else [])
+                                    + (["--notification", notification_cli] if notification_cli else []))
         factory = recorder_factory or (
             lambda folder, settings: SessionRecorder(folder, settings, input_kind="synthetic"))
-        notice = Mock()
+        notice = Mock(last_error="")
+        notice.show.return_value = alert_shown
+        controls = Mock()
+        controls.poll.return_value = []
+        if desktop_actions is not None:
+            commands = iter(enumerate(desktop_actions))
+
+            def poll_controls():
+                index, actions = next(commands)
+                if desktop_observer:
+                    desktop_observer(index, capture, notice)
+                if isinstance(actions, Exception):
+                    raise actions
+                return actions
+
+            controls.poll.side_effect = poll_controls
+        fake_cv.destroyWindow = Mock()
         modules = {"cv2": fake_cv, "mediapipe": mp, "mediapipe.tasks": tasks,
                    "mediapipe.tasks.python": python, "mediapipe.tasks.python.vision": vision}
         with patch.dict("sys.modules", modules), \
-                patch.object(blink_app, "EyeNotice", return_value=notice), \
-                patch.object(blink_app, "SessionRecorder", side_effect=factory), \
-                patch.object(blink_app.time, "monotonic_ns", side_effect=[t * 1_000_000 for t in timestamps]), \
+                patch.object(app_runtime, "EyeNotice", return_value=notice), \
+                patch.object(app_runtime, "DesktopControls", return_value=controls, side_effect=controls_error), \
+                patch.object(app_runtime, "load_mode", return_value=(notification_start, "")), \
+                patch.object(app_runtime, "DEFAULT_LOG_DIR", directory / "daily"), \
+                patch.object(app_runtime, "SessionRecorder", side_effect=factory), \
+                patch.object(app_runtime.time, "monotonic_ns", side_effect=[t * 1_000_000 for t in (clock_ms or timestamps)]), \
                 patch("builtins.print"):
             blink_app.run(args)
+        fake_cv.controls = controls
         return capture, notice, fake_cv
 
     def test_real_app_loop_saves_raw_values_settings_and_events(self):
@@ -250,6 +286,31 @@ class MeasurementLogTests(unittest.TestCase):
             self.assertEqual([row["landmarks_visible"] for row in rows], ["1", "0"])
             capture.release.assert_called_once()
             notice.close.assert_called_once()
+
+    def test_validation_mode_flows_through_app_and_csv_reasons(self):
+        for mode, expected in (("baseline", 1), ("rebound-conservative", 2)):
+            with self.subTest(mode=mode), temporary_directory() as temp:
+                directory = Path(temp)
+                self.run_synthetic_app(directory, mode=mode, rapid_fixture=True)
+                path, = directory.glob("*.csv")
+                with path.open(encoding="utf-8-sig", newline="") as stream:
+                    rows = list(csv.DictReader(stream))
+                events = [row for row in rows if row["blink"] == "1"]
+                self.assertEqual(len(events), expected)
+                self.assertEqual({row["engine_mode"] for row in rows}, {mode})
+                self.assertEqual(events[-1]["blink_reason"], "normal_reopen")
+                if mode != "baseline":
+                    self.assertEqual(events[0]["blink_reason"], "relative_reclosure")
+                for row in rows:
+                    self.assertEqual(row["event_active_ms"], row["active_ms"] if row["blink"] == "1" else "")
+                    if row["blink"] == "0":
+                        self.assertEqual(row["blink_reason"], "none")
+                metadata = json.loads(path.with_suffix(".json").read_text(encoding="utf-8"))
+                self.assertEqual(metadata["schema_version"], 4)
+                self.assertEqual(metadata["initial_settings"]["engine_mode"], mode)
+                self.assertIn("v2", metadata["library_name"])
+                if mode != "baseline":
+                    self.assertEqual(metadata["initial_settings"]["rebound_parameters"]["rise"], .06)
 
 
 if __name__ == "__main__":

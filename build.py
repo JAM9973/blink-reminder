@@ -1,4 +1,4 @@
-"""Build the small C decision engine as a library for ctypes."""
+"""C 판정 코드를 Python에서 부를 수 있는 라이브러리로 만든다."""
 
 from pathlib import Path
 import os
@@ -11,19 +11,22 @@ ROOT = Path(__file__).resolve().parent
 SOURCE = ROOT / "blink_engine.c"
 
 
-def build() -> Path:
+def library_path() -> Path:
     system = platform.system()
     if system == "Windows":
-        output = ROOT / "blink_engine.dll"
+        return ROOT / "blink_engine_v2.dll"
     elif system == "Darwin":
-        output = ROOT / "libblink_engine.dylib"
-    else:
-        output = ROOT / "libblink_engine.so"
+        return ROOT / "libblink_engine_v2.dylib"
+    return ROOT / "libblink_engine_v2.so"
+
+
+def build() -> Path:
+    system = platform.system()
+    output = library_path()
 
     compiler = shutil.which("gcc") or shutil.which("clang")
     if compiler:
-        # Keep file arguments relative: some Windows GCC builds cannot decode
-        # a Korean absolute path passed through argv.
+        # 한글 폴더에서도 빌드되도록 파일 이름만 넘긴다.
         command = [compiler, "-std=c11", "-O2", "-shared",
                    SOURCE.name, "-o", output.name]
         if system != "Windows":

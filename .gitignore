@@ -15,6 +15,9 @@ windows-checkpoints/
 .pptx-build/
 .codex-finalizer/
 data/records/
+blink_????-??-??.csv
+data/notification_settings.json
+data/notification_settings.json.*.tmp
 .docx-build/
 *.exe
 ~$*
