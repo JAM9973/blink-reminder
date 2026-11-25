@@ -15,6 +15,8 @@ from uuid import uuid4
 DEFAULT_LOG_DIR = Path(os.environ.get("LOCALAPPDATA") or Path.home() / ".local" / "share") / "BlinkReminder" / "logs"
 FIELDS = ("session_id", "start_time", "end_time", "blinks", "valid_seconds", "alerts")
 MINUTE_MS = 60_000
+MILLISECOND = Decimal("0.001")
+MAX_VALID_SECONDS = ((1 << 63) - 1) * MILLISECOND  # C의 int64_t 누적 밀리초 상한
 BIN_MINUTES = 5
 BINS_PER_DAY = 24 * 60 // BIN_MINUTES
 
@@ -80,7 +82,10 @@ def _daily_rows(directory, day):
                 duration = Decimal(row["valid_seconds"])
             except InvalidOperation as exc:
                 raise ValueError("CSV 측정 시간이 올바르지 않습니다.") from exc
-            if blinks < 0 or alerts < 0 or not duration.is_finite() or not 0 <= duration <= 60:
+            # 행은 PC 시계의 분 경계로 나누고, 유효 시간은 C의 단조 시계로 잰다.
+            if (blinks < 0 or alerts < 0 or not duration.is_finite()
+                    or not 0 <= duration <= MAX_VALID_SECONDS
+                    or duration != duration.quantize(MILLISECOND)):
                 raise ValueError("CSV 측정값이 올바르지 않습니다.")
             yield start, blinks, duration, alerts
 
@@ -181,7 +186,7 @@ class DailyRecorder:
                 writer.writerow(FIELDS)
             writer.writerow((self.session_id, start.isoformat(timespec="milliseconds"),
                              end.isoformat(timespec="milliseconds"), self.blinks,
-                             f"{self.valid_ms / 1000:.3f}", self.alerts))
+                             f"{self.valid_ms * MILLISECOND:.3f}", self.alerts))
         self.start_ms = None
         self.valid_ms = self.blinks = self.alerts = 0
         return True

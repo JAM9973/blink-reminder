@@ -3,6 +3,7 @@
 import csv
 from datetime import date, datetime, timedelta
 from decimal import Decimal
+import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
@@ -114,6 +115,74 @@ class DailyLogTests(unittest.TestCase):
             self.assertEqual(summary.valid_seconds, Decimal("90.000"))
             self.assertEqual((summary.blinks, summary.blinks_per_minute, summary.alerts), (15, 10, 3))
             self.assertIsNone(daily_statistics(directory, yesterday).blinks_per_minute)
+
+    def test_recorder_and_reader_agree_when_clocks_differ_by_one_millisecond(self):
+        with TemporaryDirectory(dir=self.cache) as temp:
+            directory = Path(temp)
+            start = datetime(2026, 11, 25, 8).astimezone()
+            recorder = DailyRecorder(directory)
+            recorder.observe(start, 0, tracked=True)
+            for second in range(1, 61):
+                timestamp = start + timedelta(seconds=second, milliseconds=-1)
+                recorder.observe(timestamp, 1000, tracked=True, blink=second <= 18, alert=second == 1)
+            self.assertTrue(recorder.observe(start + timedelta(minutes=1), 1, tracked=True))
+            recording, = rows(csv_path(directory, start.date()))
+            self.assertEqual(recording["valid_seconds"], "60.001")
+            self.assertEqual(daily_statistics(directory, start.date()).valid_seconds, Decimal("60.001"))
+
+    def test_reader_rejects_invalid_durations_and_headers(self):
+        with TemporaryDirectory(dir=self.cache) as temp:
+            directory = Path(temp)
+            day = date(2026, 11, 25)
+            timestamp = f"{day}T08:00:00+09:00"
+            for header, duration in ((FIELDS, "-0.001"), (FIELDS, "NaN"), (FIELDS, "Infinity"),
+                                     (FIELDS, "bad"), (FIELDS, "1E+999999"), (FIELDS, "0.0001"),
+                                     (("bad_column", *FIELDS[1:]), "60.001")):
+                with self.subTest(header=header, duration=duration):
+                    with csv_path(directory, day).open("w", encoding="utf-8", newline="") as stream:
+                        writer = csv.writer(stream)
+                        writer.writerow(header)
+                        writer.writerow(("one", timestamp, timestamp, 0, duration, 0))
+                    with self.assertRaises(ValueError):
+                        daily_statistics(directory, day)
+
+    @unittest.skipUnless(os.name == "nt", "Windows 통계 화면 검증")
+    def test_windows_chart_and_summary_read_mixed_minute_durations(self):
+        import tkinter as tk
+        from unittest.mock import patch
+
+        from statistics_window import StatisticsWindow
+
+        try:
+            root = tk.Tk()
+        except tk.TclError as exc:
+            self.skipTest(f"Windows 통계 창을 열 수 없습니다: {exc}")
+        self.addCleanup(root.destroy)
+        root.withdraw()
+        with TemporaryDirectory(dir=self.cache) as temp:
+            directory = Path(temp)
+            day = date(2026, 11, 25)
+            path = csv_path(directory, day)
+            with path.open("w", encoding="utf-8", newline="") as stream:
+                writer = csv.writer(stream)
+                writer.writerow(FIELDS)
+                writer.writerow(("one", f"{day}T08:00:00+09:00", f"{day}T08:01:00+09:00", 18, "60.001", 1))
+                writer.writerow(("two", f"{day}T08:05:00+09:00", f"{day}T08:05:30+09:00", 4, "30.000", 2))
+            original = path.read_bytes()
+            with patch("statistics_window.date", wraps=date) as calendar:
+                calendar.today.return_value = day
+                stats = StatisticsWindow(root, directory)
+                stats.show()
+                root.update()
+                self.assertEqual(stats.day.get(), day.isoformat())
+                self.assertAlmostEqual(stats.rates[96], 18 * 60 / 60.001)
+                self.assertEqual(stats.rates[97], 8)
+                self.assertEqual([stats.chart.type(item) for item in stats.chart.find_withtag("rate")],
+                                 ["oval", "line", "oval"])
+                self.assertTrue(stats.summary_metrics.winfo_ismapped())
+                self.assertEqual(tuple(label.cget("text") for label in stats.summary_values),
+                                 ("90.001초", "22회", "14.67회/분", "3회"))
+            self.assertEqual(path.read_bytes(), original)
 
 
 if __name__ == "__main__":
