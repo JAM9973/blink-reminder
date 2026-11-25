@@ -6,7 +6,8 @@ import time
 from daily_log import DEFAULT_LOG_DIR, DailyRecorder
 from desktop_controls import DesktopControls
 from engine import BlinkEngine
-from input_tracking import ensure_model, open_camera, read_eye_sample, draw_eye_points
+from input_tracking import (DEFAULT_HAND_MODEL, HAND_MODEL_URL, ensure_model, open_camera,
+                            read_eye_sample, draw_eye_points)
 from measurement_log import FrameRate, SessionRecorder
 from notifications import NotificationManager as EyeNotice
 from notification_settings import (MODES as NOTIFICATION_MODES, MUTE_OPTIONS,
@@ -24,6 +25,7 @@ class BlinkApplication:
         self.show_landmarks = not args.no_landmarks
         self.paused = False
         self.last_result = None
+        self.last_face_detected = False
         self.last_frame = None
         self.previous_timestamp = -1
         self.frame_rate = FrameRate()
@@ -47,12 +49,16 @@ class BlinkApplication:
         self.cv2, self.mp = cv2, mp
         self.preview = PreviewWindow(cv2)
         model = ensure_model(self.args.model)
+        hand_model = ensure_model(DEFAULT_HAND_MODEL, url=HAND_MODEL_URL, label="손")
         options = vision.FaceLandmarkerOptions(
             # 한글 경로도 읽을 수 있도록 모델 파일의 내용을 전달한다.
             base_options=mp_python.BaseOptions(model_asset_buffer=model.read_bytes()),
             running_mode=vision.RunningMode.VIDEO, num_faces=1,
             min_face_detection_confidence=.5, min_face_presence_confidence=.5,
             min_tracking_confidence=.5)
+        hand_options = vision.HandLandmarkerOptions(
+            base_options=mp_python.BaseOptions(model_asset_buffer=hand_model.read_bytes()),
+            running_mode=vision.RunningMode.VIDEO, num_hands=2)
         self.capture = open_camera(cv2, self.args.camera)
         print("키 조작: 영상 창을 클릭하고 영문 입력 상태에서 L(좌표), Q/Esc(종료)를 누르세요.")
         print("영상 아래 Points / Exit 버튼으로도 좌표 전환과 종료를 할 수 있습니다.")
@@ -66,8 +72,10 @@ class BlinkApplication:
                 self.controls = DesktopControls(self.notice.root, hidden=self.args.background)
             with BlinkEngine(self.args.min_blinks, self.args.closed_ear, self.args.open_ear,
                              self.args.low_seconds, self.args.cooldown, mode=self.args.mode) as engine, \
-                    vision.FaceLandmarker.create_from_options(options) as landmarker:
+                    vision.FaceLandmarker.create_from_options(options) as landmarker, \
+                    vision.HandLandmarker.create_from_options(hand_options) as hand_landmarker:
                 self.engine, self.landmarker = engine, landmarker
+                self.hand_landmarker = hand_landmarker
                 self._open_recording(model)
                 self._save_control("start")
                 self._loop()
@@ -203,8 +211,9 @@ class BlinkApplication:
 
     def _measure_frame(self):
         sample = read_eye_sample(self.cv2, self.mp, self.landmarker, self.capture,
-                                 self.previous_timestamp, self.frame_rate)
+                                 self.previous_timestamp, self.frame_rate, hand_landmarker=self.hand_landmarker)
         self.previous_timestamp = sample.timestamp_ms
+        self.last_face_detected = sample.face_detected
         previous_active_ms = self.last_result.active_ms if self.last_result is not None else 0
         self.last_result = self.engine.update(sample.left, sample.right,
                                               sample.measurement_valid, sample.timestamp_ms)
@@ -226,7 +235,7 @@ class BlinkApplication:
         if sample.measurement_valid and self.show_landmarks:
             draw_eye_points(self.cv2, sample.frame, sample.landmarks)
         result = self.last_result
-        state = "NO FACE" if not sample.face_detected else "INVALID EAR" if not sample.measurement_valid else (
+        state = "NO FACE" if not sample.face_detected else "EYES NOT OBSERVABLE" if not sample.measurement_valid else (
             "CLOSED" if result.state == 2 else "OPEN" if result.state == 1 else "CHECKING")
         lines = [f"Mode: {'VERIFY' if self.args.mode != 'baseline' else 'BASELINE'}   Eyes: {state}",
                  f"60s blinks: {result.count_60s} / target {self.engine.target}",
@@ -290,6 +299,7 @@ class BlinkApplication:
     def _update_controls(self):
         if self.controls:
             self.controls.update(paused=self.paused, result=self.last_result, target=self.engine.target,
+                face_detected=self.last_face_detected,
                 recording="오류" if self.recording_error or self.daily_recording_error else
                     "켜짐" if self.recorder or self.daily_recorder else "꺼짐",
                 mode=self.engine.mode, preview_enabled=self.preview_requested,

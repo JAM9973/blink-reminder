@@ -104,7 +104,7 @@ class DesktopControls:
 
     def update(self, *, paused, result, target, recording, mode,
                preview_enabled=False, landmarks_visible=True,
-               notification_mode="pill", notification_warning="", mute_status="켜짐"):
+               notification_mode="pill", notification_warning="", mute_status="켜짐", face_detected=False):
         if self.paused != paused:
             self.paused = paused
             self.icon.title = "눈 깜빡임 알림 · " + ("일시정지" if paused else "측정 중")
@@ -112,7 +112,7 @@ class DesktopControls:
         self.panel.update_values(paused=paused, result=result, target=target,
                                  preview_enabled=preview_enabled, landmarks_visible=landmarks_visible,
                                  notification_mode=notification_mode, notification_warning=notification_warning,
-                                 mute_status=mute_status)
+                                 mute_status=mute_status, face_detected=face_detected)
         suffix = " · 기록 오류" if recording == "오류" else ""
         self.window.title("눈 깜빡임 알림" + suffix)
 

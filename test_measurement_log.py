@@ -76,7 +76,7 @@ class MeasurementLogTests(unittest.TestCase):
                           desktop_actions=None, background=False, clock_ms=None,
                           desktop_observer=None, preview=True, no_keys=False,
                           notification_start="pill", notification_cli=None, controls_error=None,
-                          alert_shown=True, mute_until=None):
+                          alert_shown=True, mute_until=None, covered_frames=(), hand_frames=None):
         import cv2
         import numpy as np
 
@@ -94,8 +94,12 @@ class MeasurementLogTests(unittest.TestCase):
             detections = [SimpleNamespace(face_landmarks=[eye_landmarks(ear)]) for ear in ears]
         capture = Mock()
         capture.isOpened.return_value = True
-        capture.read.side_effect = [(True, np.zeros((100, 200, 3), dtype=np.uint8))
-                                    for _ in timestamps]
+        visible = np.full((100, 200, 3), 180, dtype=np.uint8)
+        visible[29:32, :] = 40
+        covered = visible.copy()
+        covered[18:43, 118:165] = 180
+        capture.read.side_effect = [(True, (covered if index in covered_frames else visible).copy())
+                                    for index, _ in enumerate(timestamps)]
         if fail_read:
             capture.read.side_effect = [(True, np.zeros((100, 200, 3), dtype=np.uint8)),
                                         (False, None)]
@@ -104,9 +108,18 @@ class MeasurementLogTests(unittest.TestCase):
         detector_context = Mock()
         detector_context.__enter__ = Mock(return_value=detector)
         detector_context.__exit__ = Mock(return_value=False)
+        hand_frames = hand_frames or {}
+        hand_detector = Mock()
+        hand_detector.detect_for_video.side_effect = lambda _, timestamp: SimpleNamespace(
+            hand_landmarks=hand_frames.get(timestamp, []))
+        hand_context = Mock()
+        hand_context.__enter__ = Mock(return_value=hand_detector)
+        hand_context.__exit__ = Mock(return_value=False)
 
         fake_cv = ModuleType("cv2")
-        for name in ("CAP_DSHOW", "CAP_MSMF", "COLOR_BGR2RGB", "FONT_HERSHEY_SIMPLEX",
+        for name in ("CAP_DSHOW", "CAP_MSMF", "COLOR_BGR2RGB", "COLOR_BGR2GRAY",
+                     "INTER_LINEAR", "INTER_NEAREST", "remap", "convexHull", "fillConvexPoly", "line",
+                     "FONT_HERSHEY_SIMPLEX",
                      "WND_PROP_VISIBLE", "EVENT_LBUTTONUP", "error"):
             setattr(fake_cv, name, getattr(cv2, name))
         fake_cv.VideoCapture = Mock(return_value=capture)
@@ -149,8 +162,10 @@ class MeasurementLogTests(unittest.TestCase):
         python.BaseOptions = Mock()
         python.vision = vision
         vision.FaceLandmarkerOptions = Mock()
+        vision.HandLandmarkerOptions = Mock()
         vision.RunningMode = SimpleNamespace(VIDEO=1)
         vision.FaceLandmarker = SimpleNamespace(create_from_options=Mock(return_value=detector_context))
+        vision.HandLandmarker = SimpleNamespace(create_from_options=Mock(return_value=hand_context))
         model = directory / "synthetic.task"
         model.write_bytes(b"synthetic detector - not a real MediaPipe model")
         args = blink_app.parse_args(["--csv-dir", str(directory), "--model", str(model),
@@ -186,6 +201,7 @@ class MeasurementLogTests(unittest.TestCase):
                 patch.object(app_runtime, "DesktopControls", return_value=controls, side_effect=controls_error), \
                 patch.object(app_runtime, "load_mode", return_value=(notification_start, "")), \
                 patch.object(app_runtime, "load_mute", return_value=(mute_until, "")), \
+                patch.object(app_runtime, "DEFAULT_HAND_MODEL", model), \
                 patch.object(app_runtime, "DEFAULT_LOG_DIR", directory / "daily"), \
                 patch.object(app_runtime, "SessionRecorder", side_effect=factory), \
                 patch.object(app_runtime.time, "monotonic_ns", side_effect=[t * 1_000_000 for t in (clock_ms or timestamps)]), \
@@ -193,6 +209,41 @@ class MeasurementLogTests(unittest.TestCase):
             blink_app.run(args)
         fake_cv.controls = controls
         return capture, notice, fake_cv
+
+    def test_covered_eye_does_not_contribute_time_or_blink_on_recovery(self):
+        with temporary_directory() as temp:
+            directory = Path(temp)
+            self.run_synthetic_app(directory, covered_frames=(4, 5))
+            trace, = directory.glob("*.csv")
+            with trace.open(encoding="utf-8-sig", newline="") as stream:
+                rows = list(csv.DictReader(stream))
+            for row in rows[4:6]:
+                self.assertEqual((row["face_detected"], row["measurement_valid"],
+                                  row["active_ms"], row["blink"]), ("1", "0", "99", "0"))
+                self.assertGreater(float(row["left_ear"]), 0)
+            self.assertEqual(sum(int(row["blink"]) for row in rows), 0)
+            self.assertGreater(int(rows[-1]["active_ms"]), 99)
+
+    def test_hand_occlusion_rejects_textured_eye_but_allows_hand_nearby(self):
+        pixel_points = ((56, 59), (49, 51), (44, 47), (41, 43), (38, 40),
+                        (51, 43), (50, 36), (49, 29), (48, 23),
+                        (56, 42), (56, 34), (56, 27), (56, 21),
+                        (61, 43), (62, 35), (63, 30), (64, 25),
+                        (66, 45), (68, 39), (69, 34), (70, 29))
+        crossing = [SimpleNamespace(x=x / 200, y=y / 100) for x, y in pixel_points]
+        below = [SimpleNamespace(x=p.x, y=p.y + .24) for p in crossing]
+        hand_frames = {132: [below, crossing], 165: [crossing], 264: [below], 297: [below]}
+        with temporary_directory() as temp:
+            directory = Path(temp)
+            self.run_synthetic_app(directory, hand_frames=hand_frames)
+            trace, = directory.glob("*.csv")
+            with trace.open(encoding="utf-8-sig", newline="") as stream:
+                rows = list(csv.DictReader(stream))
+            for row in rows[4:6]:
+                self.assertEqual((row["face_detected"], row["measurement_valid"],
+                                  row["active_ms"], row["blink"], row["alert"]), ("1", "0", "99", "0", "0"))
+            self.assertEqual([row["measurement_valid"] for row in rows[8:10]], ["1", "1"])
+            self.assertEqual(sum(int(row["blink"]) for row in rows), 0)
 
     def test_real_app_loop_saves_raw_values_settings_and_events(self):
         with temporary_directory() as temp:

@@ -196,7 +196,7 @@ class CompactPanel(tk.Frame):
         self.window.geometry(f"{width}x{self.winfo_reqheight()}")
 
     def update_values(self, *, paused, result, target, preview_enabled, landmarks_visible,
-                      notification_mode="pill", notification_warning="", mute_status="켜짐"):
+                      notification_mode="pill", notification_warning="", mute_status="켜짐", face_detected=False):
         self.power.set(not paused)
         self.power_label.configure(text="꺼짐" if paused else "켜짐")
         self.count_label.configure(text=str(result.count_60s) if result is not None else "—")
@@ -205,7 +205,8 @@ class CompactPanel(tk.Frame):
         elif result is None:
             status, color = "측정 준비 중", MUTED
         elif not result.face_visible:
-            status, color = "얼굴 인식 안 됨", MUTED
+            status = "눈 확인 안 됨 · 측정 대기" if face_detected else "얼굴 인식 안 됨"
+            color = MUTED
         elif result.state == 0:
             status, color = "눈 상태 확인 중", MUTED
         else:
