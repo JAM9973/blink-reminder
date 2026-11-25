@@ -112,8 +112,6 @@ class BlinkApplication:
             self._save_control("notification_test")
         elif action.startswith("mute:"):
             self._change_mute(action.partition(":")[2])
-        elif action == "statistics":
-            self.controls.open_statistics(DEFAULT_LOG_DIR)
         elif action == "points":
             self.show_landmarks = not self.show_landmarks
             self._save_control("points")

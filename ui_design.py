@@ -15,6 +15,13 @@ FONT_FAMILY = "Malgun Gothic"
 PANEL_WIDTH = 360
 CONTENT_PAD_X, CONTENT_PAD_Y = 28, 26
 DESCRIPTION_WIDTH = 304
+DASHBOARD_BACKGROUND = "#f2f0eb"
+DASHBOARD_SURFACE = "#fffdfa"
+DASHBOARD_METRIC = "#e9e7df"
+DASHBOARD_FOREGROUND = "#1e3932"
+DASHBOARD_MUTED = "#53665d"
+DASHBOARD_BORDER = "#d9ded7"
+DASHBOARD_ACCENT = "#006241"
 SURFACE_SIZES = {"pill": (330, 78), "blink": (96, 60)}
 DESCRIPTIONS = {
     "pill": "화면 오른쪽 위에 짧은 문장이 나타납니다.",
@@ -23,13 +30,13 @@ DESCRIPTIONS = {
 }
 
 
-def switch_image(px, enabled):
+def switch_image(px, enabled, *, accent=ACCENT):
     width, height = px(34), px(20)
     factor = 3
     image = Image.new("RGBA", (width * factor, height * factor), (255, 255, 255, 0))
     draw = ImageDraw.Draw(image)
     draw.rounded_rectangle((0, 0, width * factor - 1, height * factor - 1),
-        radius=height * factor // 2, fill=ACCENT if enabled else SWITCH_OFF)
+        radius=height * factor // 2, fill=accent if enabled else SWITCH_OFF)
     margin = px(3) * factor
     diameter = height * factor - 2 * margin
     left = width * factor - margin - diameter if enabled else margin

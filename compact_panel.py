@@ -3,15 +3,16 @@
 import tkinter as tk
 from PIL import ImageTk
 from notification_settings import MODES, MUTE_OPTIONS
-from ui_design import (BACKGROUND, FOREGROUND, MUTED, BORDER, ACCENT, ERROR_COLOR,
-                       FONT_FAMILY, PANEL_WIDTH, CONTENT_PAD_X, CONTENT_PAD_Y,
+from ui_design import (DASHBOARD_BACKGROUND as BACKGROUND, DASHBOARD_FOREGROUND as FOREGROUND,
+                       DASHBOARD_MUTED as MUTED, DASHBOARD_BORDER as BORDER,
+                       DASHBOARD_ACCENT as ACCENT, DASHBOARD_METRIC, ERROR_COLOR,
+                       FONT_FAMILY, CONTENT_PAD_X, CONTENT_PAD_Y,
                        DESCRIPTION_WIDTH, DESCRIPTIONS, switch_image)
 
 
 class CompactPanel(tk.Frame):
     def __init__(self, window, emit):
         super().__init__(window, bg=BACKGROUND)
-        self.window = window
         self.emit = emit
         self.scale = window.winfo_fpixels("1i") / 96
         self.power = tk.BooleanVar(value=True)
@@ -23,33 +24,46 @@ class CompactPanel(tk.Frame):
         self.content = tk.Frame(self, bg=BACKGROUND)
         self.content.pack(fill="both", expand=True, padx=self.px(CONTENT_PAD_X), pady=self.px(CONTENT_PAD_Y))
         self.content.columnconfigure(0, weight=1)
+        self.content.columnconfigure(0, minsize=self.px(254))
 
         header = self.row(0)
-        self.label(header, "눈 깜빡임", 12, weight="bold").pack(side="left")
+        self.label(header, "측정", 13, weight="bold").pack(side="left")
         self.power_label, self.power_switch = self.switch(
             header, self.power, "측정", lambda: emit("pause_toggle"))
-        self.text_button(header, "일일 통계", lambda: emit("statistics"),
-                         size=9, color=ACCENT).pack(side="right", padx=self.px(10))
 
-        reading = self.row(1)
-        reading.grid_configure(pady=(self.px(28), self.px(20)))
-        self.label(reading, "최근 60초 깜빡임", 10, MUTED).pack(anchor="w")
-        number = tk.Frame(reading, bg=BACKGROUND)
-        number.pack(anchor="w", pady=(self.px(2), 0))
-        self.count_label = self.label(number, "—", 46)
+        reading = tk.Frame(self.content, bg=DASHBOARD_METRIC, pady=self.px(10))
+        reading.grid(row=1, column=0, sticky="ew", pady=(self.px(16), self.px(12)))
+        self.label(reading, "최근 60초 깜빡임", 10, MUTED).pack()
+        number = tk.Frame(reading, bg=DASHBOARD_METRIC)
+        number.pack()
+        self.count_label = self.label(number, "—", 42, ACCENT, weight="bold")
         self.count_label.pack(side="left")
         self.label(number, "회", 12, MUTED).pack(side="left", anchor="s",
             padx=(self.px(7), 0), pady=(0, self.px(14)))
         self.status = self.label(reading, "측정 준비 중", 10, MUTED)
-        self.status.pack(anchor="w", pady=(self.px(2), 0))
-        self.label(reading, "얼굴이 인식된 유효 측정 시간 기준", 9, MUTED).pack(
-            anchor="w", pady=(self.px(6), 0))
+        self.status.pack()
+        self.target_summary = self.label(reading, "", 9, MUTED)
+        self.target_summary.pack(pady=(self.px(4), 0))
 
-        target_row = self.row(2)
-        caption = tk.Frame(target_row, bg=BACKGROUND)
-        caption.pack(side="left")
-        self.label(caption, "알림 기준", 11).pack(side="left")
-        self.label(caption, " / 60초", 9, MUTED).pack(side="left")
+        actions = self.row(2)
+        self.preview_button = self.text_button(actions, "카메라 미리보기",
+            lambda: emit("preview_toggle"), size=10, color=ACCENT)
+        self.preview_button.pack(side="left")
+        self.settings_button = self.text_button(actions, "설정 ▾", self.toggle_settings, size=10, color=ACCENT)
+        self.settings_button.pack(side="right")
+
+        self.points_row = tk.Frame(self.content, bg=BACKGROUND)
+        self.points_check = tk.Checkbutton(self.points_row, text="눈 좌표 표시",
+            variable=self.points, command=lambda: emit("points"), font=(FONT_FAMILY, 10),
+            bg=BACKGROUND, fg=MUTED, activebackground=BACKGROUND,
+            selectcolor=BACKGROUND, relief="flat", bd=0, takefocus=True,
+            highlightthickness=1, highlightbackground=BACKGROUND, highlightcolor=ACCENT)
+        self.points_check.pack(side="left")
+
+        self.settings = tk.Frame(self.content, bg=BACKGROUND)
+        self.settings.columnconfigure(0, weight=1)
+        target_row = self.row(0, parent=self.settings)
+        self.label(target_row, "분당 알림 기준", 10).pack(side="left")
         stepper = tk.Frame(target_row, bg=BACKGROUND)
         stepper.pack(side="right")
         self.minus_button = self.step_button(stepper, "−", lambda: emit("target_down"))
@@ -60,15 +74,15 @@ class CompactPanel(tk.Frame):
         self.plus_button = self.step_button(stepper, "+", lambda: emit("target_up"))
         self.plus_button.pack(side="left")
 
-        self.divider(3)
-        notification_row = self.row(4)
+        notification_row = self.row(1, parent=self.settings)
+        notification_row.grid_configure(pady=(self.px(5), 0))
         self.label(notification_row, "알림 방식", 11).pack(side="left")
         self.notification_test = self.text_button(notification_row, "알림 확인",
             lambda: emit("notification_test"), size=9, color=ACCENT)
         self.notification_test.pack(side="right")
 
-        choices = self.row(5)
-        choices.grid_configure(pady=(self.px(12), 0))
+        choices = self.row(2, parent=self.settings)
+        choices.grid_configure(pady=(self.px(4), 0))
         self.notification_value = tk.StringVar(value="pill")
         self.notification_buttons = {}
         self.notification_lines = {}
@@ -90,13 +104,12 @@ class CompactPanel(tk.Frame):
             self.notification_lines[mode] = line
             for key, offset in (("<Left>", -1), ("<Right>", 1)):
                 button.bind(key, lambda event, step=offset: self._move_choice(step))
-        self.notification_description = self.label(self.content, "", 9, MUTED)
+        self.notification_description = self.label(self.settings, "", 9, MUTED)
         self.notification_description.configure(wraplength=self.px(DESCRIPTION_WIDTH), justify="left", height=2, anchor="nw")
-        self.notification_description.grid(row=6, column=0, sticky="ew", pady=(self.px(9), 0))
+        self.notification_description.grid(row=3, column=0, sticky="ew", pady=(self.px(6), 0))
         self._style_notification()
 
-        mute_row = self.row(7)
-        mute_row.grid_configure(pady=(self.px(8), 0))
+        mute_row = self.row(4, parent=self.settings)
         self.label(mute_row, "자동 알림", 10).pack(side="left")
         self.mute_value = tk.StringVar(value="켜짐  ▾")
         self.mute_button = tk.Menubutton(mute_row, textvariable=self.mute_value,
@@ -110,18 +123,14 @@ class CompactPanel(tk.Frame):
 
         self.notification_hint = self.label(self.content, "", 9, ERROR_COLOR)
         self.notification_hint.configure(wraplength=self.px(DESCRIPTION_WIDTH), justify="left")
-        self.divider(9)
-        preview_row = self.row(10)
-        self.label(preview_row, "카메라 미리보기", 11).pack(side="left")
-        self.preview_label, self.preview_switch = self.switch(
-            preview_row, self.preview, "카메라 미리보기", lambda: emit("preview_toggle"))
-        self.points_row = tk.Frame(self.content, bg=BACKGROUND)
-        self.points_check = tk.Checkbutton(self.points_row, text="눈 좌표 표시",
-            variable=self.points, command=lambda: emit("points"), font=(FONT_FAMILY, 10),
-            bg=BACKGROUND, fg=MUTED, activebackground=BACKGROUND,
-            selectcolor=BACKGROUND, relief="flat", bd=0, takefocus=True,
-            highlightthickness=1, highlightbackground=BACKGROUND, highlightcolor=ACCENT)
-        self.points_check.pack(side="left")
+
+    def toggle_settings(self):
+        if self.settings.winfo_manager():
+            self.settings.grid_remove()
+            self.settings_button.configure(text="설정 ▾")
+        else:
+            self.settings.grid(row=5, column=0, sticky="ew", pady=(self.px(12), 0))
+            self.settings_button.configure(text="설정 ▴")
 
     def _style_notification(self):
         selected = self.notification_value.get()
@@ -147,19 +156,15 @@ class CompactPanel(tk.Frame):
 
     def label(self, parent, text, size, color=FOREGROUND, *, weight="normal"):
         return tk.Label(parent, text=text, font=(FONT_FAMILY, size, weight),
-                        bg=BACKGROUND, fg=color, padx=0, pady=0, anchor="w")
+                        bg=parent.cget("bg"), fg=color, padx=0, pady=0, anchor="w")
 
-    def row(self, index):
-        frame = tk.Frame(self.content, bg=BACKGROUND)
+    def row(self, index, *, parent=None):
+        frame = tk.Frame(self.content if parent is None else parent, bg=BACKGROUND)
         frame.grid(row=index, column=0, sticky="ew")
         return frame
 
-    def divider(self, index):
-        tk.Frame(self.content, bg=BORDER, height=1).grid(row=index, column=0,
-            sticky="ew", pady=(self.px(20), self.px(18)))
-
     def switch_image(self, enabled):
-        photo = ImageTk.PhotoImage(switch_image(self.px, enabled), master=self)
+        photo = ImageTk.PhotoImage(switch_image(self.px, enabled, accent=ACCENT), master=self)
         self._images.append(photo)
         return photo
 
@@ -190,11 +195,6 @@ class CompactPanel(tk.Frame):
         button.configure(width=2)
         return button
 
-    def resize_window(self):
-        self.update_idletasks()
-        width = max(self.px(PANEL_WIDTH), self.winfo_reqwidth())
-        self.window.geometry(f"{width}x{self.winfo_reqheight()}")
-
     def update_values(self, *, paused, result, target, preview_enabled, landmarks_visible,
                       notification_mode="pill", notification_warning="", mute_status="켜짐", face_detected=False):
         self.power.set(not paused)
@@ -212,10 +212,12 @@ class CompactPanel(tk.Frame):
         else:
             status, color = "측정 중", ACCENT
         self.status.configure(text=status, fg=color)
+        self.target_summary.configure(text=f"알림 기준 {target}회/분")
         self.target_label.configure(text=f"{target}회")
         self.minus_button.configure(state="disabled" if target <= 0 else "normal")
-        self.preview.set(preview_enabled)
-        self.preview_label.configure(text="켜짐" if preview_enabled else "꺼짐")
+        if self.preview.get() != preview_enabled:
+            self.preview.set(preview_enabled)
+            self.preview_button.configure(text="미리보기 닫기" if preview_enabled else "카메라 미리보기")
         self.points.set(landmarks_visible)
         if self.notification_value.get() != notification_mode:
             self.notification_value.set(notification_mode)
@@ -223,21 +225,16 @@ class CompactPanel(tk.Frame):
         mute_text = f"{mute_status}  ▾"
         if self.mute_value.get() != mute_text:
             self.mute_value.set(mute_text)
-        resize = False
         if notification_warning != self._notification_warning:
             self._notification_warning = notification_warning
             self.notification_hint.configure(text=notification_warning)
             if notification_warning:
-                self.notification_hint.grid(row=8, column=0, sticky="ew", pady=(self.px(8), 0))
+                self.notification_hint.grid(row=4, column=0, sticky="ew", pady=(self.px(8), 0))
             else:
                 self.notification_hint.grid_remove()
-            resize = True
         if preview_enabled != self._points_shown:
             self._points_shown = preview_enabled
             if preview_enabled:
-                self.points_row.grid(row=11, column=0, sticky="ew", pady=(self.px(10), 0))
+                self.points_row.grid(row=3, column=0, sticky="ew", pady=(self.px(6), 0))
             else:
                 self.points_row.grid_remove()
-            resize = True
-        if resize:
-            self.resize_window()

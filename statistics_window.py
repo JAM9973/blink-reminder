@@ -7,22 +7,21 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
 from daily_log import BIN_MINUTES, csv_path, daily_statistics, export_daily_csv, recorded_dates
-from ui_design import ACCENT, BACKGROUND, BORDER, FONT_FAMILY, FOREGROUND, MUTED
+from ui_design import (DASHBOARD_ACCENT as ACCENT, DASHBOARD_BACKGROUND as BACKGROUND,
+                       DASHBOARD_BORDER as BORDER, DASHBOARD_FOREGROUND as FOREGROUND,
+                       DASHBOARD_MUTED as MUTED, DASHBOARD_SURFACE as SURFACE, FONT_FAMILY)
 
 
-class StatisticsWindow:
+class StatisticsPanel(tk.Frame):
     def __init__(self, parent, directory):
+        super().__init__(parent, bg=BACKGROUND)
         self.directory = directory
-        self.window = tk.Toplevel(parent)
-        self.window.withdraw()
-        self.window.title("일일 깜빡임 통계")
-        self.window.configure(bg=BACKGROUND)
-        self.window.minsize(540, 400)
-        self.window.geometry("720x470")
-        self.window.protocol("WM_DELETE_WINDOW", self.window.withdraw)
+        self.window = parent
 
-        summary = tk.Frame(self.window, bg=BACKGROUND)
-        summary.pack(fill="x", padx=18, pady=(14, 0))
+        tk.Label(self, text="일일 깜빡임 통계", bg=BACKGROUND, fg=FOREGROUND,
+                 font=(FONT_FAMILY, 16, "bold"), anchor="w").pack(fill="x")
+        summary = tk.Frame(self, bg=BACKGROUND)
+        summary.pack(fill="x", pady=(16, 0))
         self.summary_heading = tk.Label(summary, bg=BACKGROUND, fg=FOREGROUND,
                                         font=(FONT_FAMILY, 11, "bold"), anchor="w")
         self.summary_heading.pack(fill="x")
@@ -31,40 +30,45 @@ class StatisticsWindow:
         self.summary_values = []
         for column, name in enumerate(("유효 측정 시간", "깜빡임 총횟수", "분당 깜빡임", "표시된 알림")):
             self.summary_metrics.columnconfigure(column, weight=1, uniform="metric")
-            tk.Label(self.summary_metrics, text=name, bg=BACKGROUND, fg=MUTED,
-                     font=(FONT_FAMILY, 9), anchor="w").grid(row=0, column=column, sticky="ew")
-            value = tk.Label(self.summary_metrics, bg=BACKGROUND, fg=FOREGROUND,
-                             font=(FONT_FAMILY, 13, "bold"), anchor="w")
-            value.grid(row=1, column=column, sticky="ew")
+            metric = tk.Frame(self.summary_metrics, bg=SURFACE, padx=7, pady=8)
+            metric.grid(row=0, column=column, sticky="nsew", padx=(0, 5 if column < 3 else 0))
+            tk.Label(metric, text=name, bg=SURFACE, fg=MUTED,
+                     font=(FONT_FAMILY, 9)).pack()
+            value = tk.Label(metric, bg=SURFACE, fg=ACCENT, font=(FONT_FAMILY, 12, "bold"))
+            value.pack()
             self.summary_values.append(value)
-        tk.Frame(self.window, bg=BORDER, height=1).pack(fill="x", padx=18, pady=(12, 0))
 
-        header = ttk.Frame(self.window)
-        header.pack(fill="x", padx=18, pady=(14, 6))
-        ttk.Label(header, text="날짜").pack(side="left")
+        header = tk.Frame(self, bg=BACKGROUND)
+        header.pack(fill="x", pady=(14, 9))
+        tk.Label(header, text="날짜", bg=BACKGROUND, fg=FOREGROUND,
+                 font=(FONT_FAMILY, 9)).pack(side="left")
         self.day = tk.StringVar()
-        self.picker = ttk.Combobox(header, width=14, state="readonly", textvariable=self.day)
+        self.picker = ttk.Combobox(header, width=12, state="readonly", textvariable=self.day,
+                                   font=(FONT_FAMILY, 9))
         self.picker.pack(side="left", padx=8)
         self.picker.bind("<<ComboboxSelected>>", self.refresh)
-        self.export_button = ttk.Button(header, text="CSV 내보내기", command=self.export_csv)
+        self.export_button = tk.Button(header, text="CSV 내보내기", command=self.export_csv,
+            font=(FONT_FAMILY, 9, "bold"), bg=ACCENT, fg=SURFACE, activebackground=FOREGROUND,
+            activeforeground=SURFACE, disabledforeground=BORDER, relief="flat", bd=0,
+            highlightthickness=1, highlightbackground=BACKGROUND, highlightcolor=ACCENT, padx=12, pady=4)
         self.export_button.pack(side="right")
-        self.export_status = ttk.Label(header)
+        self.export_status = tk.Label(header, bg=BACKGROUND, fg=MUTED, font=(FONT_FAMILY, 9))
         self.export_status.pack(side="right", padx=8)
 
-        self.chart = tk.Canvas(self.window, bg=BACKGROUND, highlightthickness=0)
-        self.chart.pack(fill="both", expand=True, padx=12, pady=(0, 10))
+        self.chart = tk.Canvas(self, bg=SURFACE, highlightthickness=0, width=1, height=1)
+        self.chart.pack(fill="both", expand=True)
         self.chart.bind("<Configure>", self.draw)
+        self.chart.tag_bind("rate", "<Enter>", lambda _event: self.chart.configure(cursor="hand2"))
+        self.chart.tag_bind("rate", "<Leave>", lambda _event: self.chart.configure(cursor=""))
+        self.chart.bind("<Button-1>", self.select_rate)
         self.rates = []
+        self.points = {}
+        self.selected_index = None
+        self.plotted_day = None
         self.message = ""
         self.today = None
-        self.date_check = self.window.after(1000, self._check_date)
-        self.window.bind("<Destroy>", self._cancel_date_check)
-
-    def show(self):
-        self.export_status.configure(text="")
-        self.refresh()
-        self.window.deiconify()
-        self.window.lift()
+        self.date_check = self.after(1000, self._check_date)
+        self.bind("<Destroy>", self._cancel_date_check)
 
     def refresh(self, _event=None):
         if _event is not None:
@@ -73,7 +77,7 @@ class StatisticsWindow:
         self.today = today
         self.rates = []
         self.message = "측정 기록 없음"
-        self.export_button.state(["disabled"])
+        self.export_button.configure(state="disabled", bg=MUTED)
         selected = today
         statistics = None
         try:
@@ -84,7 +88,7 @@ class StatisticsWindow:
                 self.day.set(today.isoformat())
             selected = date.fromisoformat(self.day.get())
             if csv_path(self.directory, selected).is_file():
-                self.export_button.state(["!disabled"])
+                self.export_button.configure(state="normal", bg=ACCENT)
             statistics = daily_statistics(self.directory, selected)
             self.rates = statistics.rates
         except (OSError, ValueError, TypeError, OverflowError):
@@ -94,17 +98,20 @@ class StatisticsWindow:
                 statistics = daily_statistics(self.directory, today)
             except (OSError, ValueError, TypeError, OverflowError):
                 statistics = None
+        if selected != self.plotted_day:
+            self.plotted_day = selected
+            self.selected_index = None
         self._show_summary(today, statistics)
         self.draw()
 
     def _check_date(self):
         if self.window.state() != "withdrawn" and date.today() != self.today:
             self.refresh()
-        self.date_check = self.window.after(1000, self._check_date)
+        self.date_check = self.after(1000, self._check_date)
 
     def _cancel_date_check(self, event):
-        if event.widget == self.window:
-            self.window.after_cancel(self.date_check)
+        if event.widget == self:
+            self.after_cancel(self.date_check)
 
     def _show_summary(self, today, statistics):
         self.summary_heading.configure(text=f"오늘 요약  {today:%Y-%m-%d}")
@@ -142,37 +149,82 @@ class StatisticsWindow:
     def draw(self, _event=None):
         chart = self.chart
         chart.delete("all")
+        self.points.clear()
         width, height = chart.winfo_width(), chart.winfo_height()
-        if width < 100 or height < 100:
+        if width < 120 or height < 120:
             return
         font = (FONT_FAMILY, 9)
         left, top, right, bottom = 56, 34, width - 32, height - 50
-        chart.create_text(left, 14, text="분당 깜빡임 (회/분)", anchor="w", fill=FOREGROUND, font=font)
-        chart.create_text((left + right) / 2, height - 12, text="시각", fill=FOREGROUND, font=font)
+        chart.create_text(left, 15, text="분당 깜빡임 (회/분)", anchor="w", fill=FOREGROUND,
+                          font=(FONT_FAMILY, 10, "bold"))
 
-        values = [value for value in self.rates if value is not None]
-        step = max(1, math.ceil(max(values, default=0) / 4))
+        measured = [(index, rate) for index, rate in enumerate(self.rates) if rate is not None]
+        step = max(1, math.ceil(max((rate for _, rate in measured), default=0) / 4))
         for tick in range(5):
             y = bottom - tick * (bottom - top) / 4
             chart.create_line(left, y, right, y, fill=BORDER)
             chart.create_text(left - 8, y, text=str(tick * step), anchor="e", fill=MUTED, font=font)
-        for hour in range(0, 25, 4):
-            x = left + hour * (right - left) / 24
-            chart.create_line(x, bottom, x, bottom + 5, fill=BORDER)
-            chart.create_text(x, bottom + 9, text=f"{hour:02}:00", anchor="n", fill=MUTED, font=font)
-
-        if not values:
+        if not measured:
             chart.create_text((left + right) / 2, (top + bottom) / 2,
                               text=self.message, fill=MUTED, font=(FONT_FAMILY, 11))
             return
+        first = measured[0][0] * BIN_MINUTES // 60 * 60
+        end = (measured[-1][0] * BIN_MINUTES // 60 + 1) * 60
+        label_interval = next(interval for interval in (15, 30, 60, 120, 240, 360)
+                              if (end - first) / interval <= 6)
+        for minute in range(first, end + 1, label_interval):
+            x = left + (minute - first) * (right - left) / (end - first)
+            chart.create_line(x, bottom, x, bottom + 5, fill=BORDER)
+            chart.create_text(x, bottom + 9, text=self.clock_label(minute), anchor="n", fill=MUTED, font=font)
+
         previous = None
-        for index, rate in enumerate(self.rates):
-            if rate is None:
-                previous = None
-                continue
-            x = left + index * BIN_MINUTES * (right - left) / (24 * 60)
+        for index, rate in measured:
+            minute = index * BIN_MINUTES
+            x = left + (minute - first) * (right - left) / (end - first)
             y = bottom - rate * (bottom - top) / (4 * step)
-            if previous is not None:
-                chart.create_line(*previous, x, y, fill=ACCENT, width=2, tags="rate")
-            chart.create_oval(x - 2, y - 2, x + 2, y + 2, fill=ACCENT, outline="", tags="rate")
-            previous = (x, y)
+            self.points[index] = (x, y)
+            if previous == index - 1:
+                chart.create_line(*self.points[previous], x, y, fill=ACCENT, width=2,
+                                  tags=("rate", f"bin:{previous}", f"bin:{index}"))
+            chart.create_oval(x - 2, y - 2, x + 2, y + 2, fill=ACCENT, outline="",
+                              tags=("rate", f"bin:{index}"))
+            previous = index
+        self.draw_selection()
+
+    @staticmethod
+    def clock_label(minute):
+        return f"{minute // 60:02}:{minute % 60:02}"
+
+    def select_rate(self, event):
+        chart = self.chart
+        indices = set()
+        for item in chart.find_overlapping(event.x - 5, event.y - 5, event.x + 5, event.y + 5):
+            tags = chart.gettags(item)
+            if "rate" in tags:
+                indices.update(int(tag[4:]) for tag in tags if tag.startswith("bin:"))
+        self.selected_index = min(
+            indices, key=lambda i: (abs(event.x - self.points[i][0]),
+                                    abs(event.y - self.points[i][1]), i), default=None)
+        self.draw_selection()
+
+    def draw_selection(self):
+        chart = self.chart
+        chart.delete("selection")
+        index = self.selected_index
+        if index not in self.points:
+            return
+        x, y = self.points[index]
+        chart.create_oval(x - 5, y - 5, x + 5, y + 5, fill=ACCENT, outline=SURFACE,
+                          width=2, tags="selection")
+        start = index * BIN_MINUTES
+        rate = f"{self.rates[index]:,.2f}".rstrip("0").rstrip(".")
+        text = f"{self.clock_label(start)}–{self.clock_label(start + BIN_MINUTES)}  ·  {rate}회/분"
+        label = chart.create_text(x, y - 13, text=text, anchor="s", fill=SURFACE,
+                                  font=(FONT_FAMILY, 9, "bold"), tags="selection")
+        left, top, right, _ = chart.bbox(label)
+        shift = max(8 - left, min(0, chart.winfo_width() - 8 - right))
+        chart.move(label, shift, 34 if top < 32 else 0)
+        left, top, right, bottom = chart.bbox(label)
+        box = chart.create_rectangle(left - 6, top - 3, right + 6, bottom + 3,
+                                     fill=ACCENT, outline="", tags="selection")
+        chart.tag_lower(box, label)

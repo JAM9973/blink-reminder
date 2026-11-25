@@ -4,6 +4,8 @@ import queue
 import sys
 import threading
 
+from daily_log import DEFAULT_LOG_DIR
+
 
 class DesktopControls:
     def __init__(self, root, *, hidden=False):
@@ -16,6 +18,8 @@ class DesktopControls:
             import pystray
             from PIL import Image, ImageDraw
             from compact_panel import CompactPanel
+            from statistics_window import StatisticsPanel
+            from ui_design import DASHBOARD_BACKGROUND
         except ImportError as exc:
             raise RuntimeError("트레이 패키지가 없습니다. python -m pip install -r requirements.txt를 실행하세요.") from exc
 
@@ -23,16 +27,20 @@ class DesktopControls:
         self.paused = False
         self.icon = None
         self.thread = None
-        self.statistics = None
         self.window = tk.Toplevel(root)
         self.window.withdraw()
         self.window.title("눈 깜빡임 알림")
-        self.window.configure(bg="#ffffff")
-        self.window.resizable(False, False)
+        self.window.configure(bg=DASHBOARD_BACKGROUND)
         self.window.protocol("WM_DELETE_WINDOW", lambda: self.actions.put("hide"))
         self.panel = CompactPanel(self.window, self.actions.put)
-        self.panel.pack(fill="both", expand=True)
-        self.panel.resize_window()
+        self.panel.pack(side="left", fill="y")
+        self.statistics = StatisticsPanel(self.window, DEFAULT_LOG_DIR)
+        self.statistics.pack(side="left", fill="both", expand=True, padx=(0, self.panel.px(20)),
+                             pady=self.panel.px(20))
+        self.window.minsize(self.panel.px(800), self.panel.px(525))
+        width = min(self.panel.px(1020), self.window.winfo_screenwidth() - self.panel.px(24))
+        height = min(self.panel.px(590), self.window.winfo_screenheight() - self.panel.px(80))
+        self.window.geometry(f"{width}x{height}")
 
         picture = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
         draw = ImageDraw.Draw(picture)
@@ -53,7 +61,7 @@ class DesktopControls:
             if not self.ready.wait(3) or self.error:
                 raise RuntimeError(f"트레이 아이콘을 시작하지 못했습니다: {self.error or '시간 초과'}")
             if not hidden:
-                self.window.deiconify()
+                self.set_visible(True)
         except BaseException:
             self.close()
             raise
@@ -85,21 +93,14 @@ class DesktopControls:
 
     def set_visible(self, visible):
         if visible:
+            self.statistics.refresh()
             self.window.deiconify()
             self.window.lift()
         else:
             self.window.withdraw()
-            if self.statistics:
-                self.statistics.window.withdraw()
-
-    def open_statistics(self, directory):
-        if self.statistics is None:
-            from statistics_window import StatisticsWindow
-            self.statistics = StatisticsWindow(self.window, directory)
-        self.statistics.show()
 
     def refresh_statistics(self):
-        if self.statistics and self.statistics.window.state() != "withdrawn":
+        if self.window.state() != "withdrawn":
             self.statistics.refresh()
 
     def update(self, *, paused, result, target, recording, mode,

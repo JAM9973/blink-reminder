@@ -151,7 +151,8 @@ class DailyLogTests(unittest.TestCase):
         import tkinter as tk
         from unittest.mock import patch
 
-        from statistics_window import StatisticsWindow
+        from compact_panel import CompactPanel
+        from statistics_window import StatisticsPanel
 
         try:
             root = tk.Tk()
@@ -171,9 +172,16 @@ class DailyLogTests(unittest.TestCase):
             original = path.read_bytes()
             with patch("statistics_window.date", wraps=date) as calendar:
                 calendar.today.return_value = day
-                stats = StatisticsWindow(root, directory)
-                stats.show()
+                root.geometry("1020x590")
+                actions = []
+                controls = CompactPanel(root, actions.append)
+                controls.pack(side="left", fill="y")
+                stats = StatisticsPanel(root, directory)
+                stats.pack(side="left", fill="both", expand=True)
+                stats.refresh()
+                root.deiconify()
                 root.update()
+                self.assertIs(controls.winfo_toplevel(), stats.winfo_toplevel())
                 self.assertEqual(stats.day.get(), day.isoformat())
                 self.assertAlmostEqual(stats.rates[96], 18 * 60 / 60.001)
                 self.assertEqual(stats.rates[97], 8)
@@ -182,6 +190,29 @@ class DailyLogTests(unittest.TestCase):
                 self.assertTrue(stats.summary_metrics.winfo_ismapped())
                 self.assertEqual(tuple(label.cget("text") for label in stats.summary_values),
                                  ("90.001초", "22회", "14.67회/분", "3회"))
+                self.assertFalse(controls.settings.winfo_ismapped())
+                controls.settings_button.invoke()
+                root.update_idletasks()
+                self.assertTrue(controls.settings.winfo_ismapped())
+                self.assertTrue(controls.notification_test.winfo_viewable())
+                controls.plus_button.invoke()
+                controls.notification_buttons["edge"].invoke()
+                controls.notification_test.invoke()
+                controls.mute_menu.invoke(0)
+                self.assertEqual(actions[:3], ["target_up", "notification:edge", "notification_test"])
+                self.assertTrue(actions[3].startswith("mute:"))
+                start_x, start_y = stats.points[96]
+                end_x, end_y = stats.points[97]
+                stats.chart.event_generate("<Button-1>", x=round(start_x * .75 + end_x * .25),
+                                           y=round(start_y * .75 + end_y * .25))
+                self.assertEqual(stats.selected_index, 96)
+                label, = [item for item in stats.chart.find_withtag("selection")
+                          if stats.chart.type(item) == "text"]
+                self.assertIn("08:00–08:05  ·  18회/분", stats.chart.itemcget(label, "text"))
+                stats.refresh()
+                self.assertEqual(stats.selected_index, 96)
+                stats.chart.event_generate("<Button-1>", x=round(end_x + 25), y=round(end_y))
+                self.assertIsNone(stats.selected_index)
             self.assertEqual(path.read_bytes(), original)
 
 
