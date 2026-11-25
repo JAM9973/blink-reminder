@@ -2,11 +2,12 @@
 
 import csv
 from datetime import date, datetime, timedelta
+from decimal import Decimal
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
 
-from daily_log import DailyRecorder, csv_path, daily_rates, export_daily_csv, recorded_dates
+from daily_log import FIELDS, DailyRecorder, csv_path, daily_rates, daily_statistics, export_daily_csv, recorded_dates
 
 
 def rows(path):
@@ -91,6 +92,28 @@ class DailyLogTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     export_daily_csv(directory, start.date(), unsafe)
             self.assertNotEqual(target.read_bytes(), other.read_bytes())
+
+    def test_summary_uses_requested_date_and_weights_by_total_valid_time(self):
+        with TemporaryDirectory(dir=self.cache) as temp:
+            directory = Path(temp)
+            today = date(2026, 11, 25)
+            yesterday = today - timedelta(days=1)
+            empty = daily_statistics(directory, today)
+            self.assertEqual((empty.valid_seconds, empty.blinks, empty.alerts), (Decimal(0), 0, 0))
+            self.assertIsNone(empty.blinks_per_minute)
+            for day, samples in ((today, (("first", "08:00:00", 12, "30.001", 1),
+                                          ("second", "08:05:00", 3, "59.999", 2))),
+                                 (yesterday, (("earlier", "15:00:00", 80, "0.000", 13),))):
+                with csv_path(directory, day).open("w", encoding="utf-8", newline="") as stream:
+                    writer = csv.writer(stream)
+                    writer.writerow(FIELDS)
+                    for session, start, blinks, duration, alerts in samples:
+                        timestamp = f"{day}T{start}+09:00"
+                        writer.writerow((session, timestamp, timestamp, blinks, duration, alerts))
+            summary = daily_statistics(directory, today)
+            self.assertEqual(summary.valid_seconds, Decimal("90.000"))
+            self.assertEqual((summary.blinks, summary.blinks_per_minute, summary.alerts), (15, 10, 3))
+            self.assertIsNone(daily_statistics(directory, yesterday).blinks_per_minute)
 
 
 if __name__ == "__main__":

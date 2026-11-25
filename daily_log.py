@@ -2,8 +2,9 @@
 
 from contextlib import contextmanager
 import csv
+from dataclasses import dataclass
 from datetime import date, datetime
-import math
+from decimal import Decimal, InvalidOperation
 import os
 from pathlib import Path
 from shutil import copyfileobj
@@ -52,25 +53,53 @@ def log_lock(directory):
                 flock(lock, LOCK_UN)
 
 
-def daily_rates(directory, day):
-    totals = [0] * BINS_PER_DAY
-    seconds = [0.0] * BINS_PER_DAY
-    if not csv_path(directory, day).is_file():
-        return [None] * BINS_PER_DAY
-    with log_lock(directory), csv_path(directory, day).open(encoding="utf-8", newline="") as stream:
+@dataclass(frozen=True)
+class DailyStatistics:
+    rates: list[float | None]
+    valid_seconds: Decimal
+    blinks: int
+    alerts: int
+
+    @property
+    def blinks_per_minute(self):
+        return self.blinks * 60 / self.valid_seconds if self.valid_seconds else None
+
+
+def _daily_rows(directory, day):
+    path = csv_path(directory, day)
+    if not path.is_file():
+        return
+    with log_lock(directory), path.open(encoding="utf-8", newline="") as stream:
         reader = csv.DictReader(stream)
         if reader.fieldnames != list(FIELDS):
             raise ValueError("CSV 열 형식이 올바르지 않습니다.")
         for row in reader:
             start = datetime.fromisoformat(row["start_time"])
-            index = (start.hour * 60 + start.minute) // BIN_MINUTES
-            count = int(row["blinks"])
-            duration = float(row["valid_seconds"])
-            if count < 0 or not 0 <= duration <= 60 or not math.isfinite(duration):
+            blinks, alerts = int(row["blinks"]), int(row["alerts"])
+            try:
+                duration = Decimal(row["valid_seconds"])
+            except InvalidOperation as exc:
+                raise ValueError("CSV 측정 시간이 올바르지 않습니다.") from exc
+            if blinks < 0 or alerts < 0 or not duration.is_finite() or not 0 <= duration <= 60:
                 raise ValueError("CSV 측정값이 올바르지 않습니다.")
-            totals[index] += count
-            seconds[index] += duration
-    return [count * 60 / duration if duration else None for count, duration in zip(totals, seconds)]
+            yield start, blinks, duration, alerts
+
+
+def daily_statistics(directory, day):
+    totals = [0] * BINS_PER_DAY
+    seconds = [Decimal(0)] * BINS_PER_DAY
+    alerts = 0
+    for start, blinks, duration, displayed in _daily_rows(directory, day):
+        index = (start.hour * 60 + start.minute) // BIN_MINUTES
+        totals[index] += blinks
+        seconds[index] += duration
+        alerts += displayed
+    rates = [float(count * 60 / duration) if duration else None for count, duration in zip(totals, seconds)]
+    return DailyStatistics(rates, sum(seconds), sum(totals), alerts)
+
+
+def daily_rates(directory, day):
+    return daily_statistics(directory, day).rates
 
 
 def export_daily_csv(directory, day, destination):

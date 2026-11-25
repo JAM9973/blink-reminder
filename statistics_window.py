@@ -1,4 +1,4 @@
-"""날짜별 분당 깜빡임을 5분 간격으로 보여준다."""
+"""오늘 요약과 날짜별 분당 깜빡임을 보여준다."""
 
 from datetime import date
 import math
@@ -6,7 +6,7 @@ from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
-from daily_log import BIN_MINUTES, csv_path, daily_rates, export_daily_csv, recorded_dates
+from daily_log import BIN_MINUTES, csv_path, daily_statistics, export_daily_csv, recorded_dates
 from ui_design import ACCENT, BACKGROUND, BORDER, FONT_FAMILY, FOREGROUND, MUTED
 
 
@@ -17,9 +17,27 @@ class StatisticsWindow:
         self.window.withdraw()
         self.window.title("일일 깜빡임 통계")
         self.window.configure(bg=BACKGROUND)
-        self.window.minsize(540, 340)
-        self.window.geometry("720x400")
+        self.window.minsize(540, 400)
+        self.window.geometry("720x470")
         self.window.protocol("WM_DELETE_WINDOW", self.window.withdraw)
+
+        summary = tk.Frame(self.window, bg=BACKGROUND)
+        summary.pack(fill="x", padx=18, pady=(14, 0))
+        self.summary_heading = tk.Label(summary, bg=BACKGROUND, fg=FOREGROUND,
+                                        font=(FONT_FAMILY, 11, "bold"), anchor="w")
+        self.summary_heading.pack(fill="x")
+        self.summary_metrics = tk.Frame(summary, bg=BACKGROUND)
+        self.summary_empty = tk.Label(summary, bg=BACKGROUND, fg=MUTED, font=(FONT_FAMILY, 10), anchor="w")
+        self.summary_values = []
+        for column, name in enumerate(("유효 측정 시간", "깜빡임 총횟수", "분당 깜빡임", "표시된 알림")):
+            self.summary_metrics.columnconfigure(column, weight=1, uniform="metric")
+            tk.Label(self.summary_metrics, text=name, bg=BACKGROUND, fg=MUTED,
+                     font=(FONT_FAMILY, 9), anchor="w").grid(row=0, column=column, sticky="ew")
+            value = tk.Label(self.summary_metrics, bg=BACKGROUND, fg=FOREGROUND,
+                             font=(FONT_FAMILY, 13, "bold"), anchor="w")
+            value.grid(row=1, column=column, sticky="ew")
+            self.summary_values.append(value)
+        tk.Frame(self.window, bg=BORDER, height=1).pack(fill="x", padx=18, pady=(12, 0))
 
         header = ttk.Frame(self.window)
         header.pack(fill="x", padx=18, pady=(14, 6))
@@ -38,6 +56,9 @@ class StatisticsWindow:
         self.chart.bind("<Configure>", self.draw)
         self.rates = []
         self.message = ""
+        self.today = None
+        self.date_check = self.window.after(1000, self._check_date)
+        self.window.bind("<Destroy>", self._cancel_date_check)
 
     def show(self):
         self.export_status.configure(text="")
@@ -49,9 +70,12 @@ class StatisticsWindow:
         if _event is not None:
             self.export_status.configure(text="")
         today = date.today()
+        self.today = today
         self.rates = []
         self.message = "측정 기록 없음"
         self.export_button.state(["disabled"])
+        selected = today
+        statistics = None
         try:
             days = sorted({today, *recorded_dates(self.directory)}, reverse=True)
             choices = [day.isoformat() for day in days]
@@ -61,10 +85,41 @@ class StatisticsWindow:
             selected = date.fromisoformat(self.day.get())
             if csv_path(self.directory, selected).is_file():
                 self.export_button.state(["!disabled"])
-            self.rates = daily_rates(self.directory, selected)
+            statistics = daily_statistics(self.directory, selected)
+            self.rates = statistics.rates
         except (OSError, ValueError, TypeError, OverflowError):
             self.message = "통계 기록을 읽지 못했습니다."
+        if selected != today:
+            try:
+                statistics = daily_statistics(self.directory, today)
+            except (OSError, ValueError, TypeError, OverflowError):
+                statistics = None
+        self._show_summary(today, statistics)
         self.draw()
+
+    def _check_date(self):
+        if self.window.state() != "withdrawn" and date.today() != self.today:
+            self.refresh()
+        self.date_check = self.window.after(1000, self._check_date)
+
+    def _cancel_date_check(self, event):
+        if event.widget == self.window:
+            self.window.after_cancel(self.date_check)
+
+    def _show_summary(self, today, statistics):
+        self.summary_heading.configure(text=f"오늘 요약  {today:%Y-%m-%d}")
+        if statistics is None or not statistics.valid_seconds:
+            self.summary_metrics.pack_forget()
+            message = "오늘 기록을 읽지 못했습니다." if statistics is None else "측정 기록 없음"
+            self.summary_empty.configure(text=message)
+            self.summary_empty.pack(fill="x", pady=(7, 0))
+            return
+        self.summary_empty.pack_forget()
+        values = (f"{statistics.valid_seconds:,.3f}초", f"{statistics.blinks:,}회",
+                  f"{statistics.blinks_per_minute:,.2f}회/분", f"{statistics.alerts:,}회")
+        for label, value in zip(self.summary_values, values):
+            label.configure(text=value)
+        self.summary_metrics.pack(fill="x", pady=(7, 0))
 
     def export_csv(self):
         selected = date.fromisoformat(self.day.get())
