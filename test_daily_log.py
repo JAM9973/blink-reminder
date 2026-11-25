@@ -6,7 +6,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
 
-from daily_log import DailyRecorder, csv_path, daily_rates, recorded_dates
+from daily_log import DailyRecorder, csv_path, daily_rates, export_daily_csv, recorded_dates
 
 
 def rows(path):
@@ -72,6 +72,25 @@ class DailyLogTests(unittest.TestCase):
                 self.assertEqual(sum(int(row["alerts"]) for row in saved), int(shown))
                 self.assertAlmostEqual(sum(float(row["valid_seconds"]) for row in saved),
                                        int(raw[-1]["active_ms"]) / 1000)
+
+    def test_export_copies_selected_date_and_protects_recordings(self):
+        with TemporaryDirectory(dir=self.cache) as temp:
+            folder = Path(temp)
+            directory = folder / "logs"
+            start = datetime(2026, 11, 24, 12).astimezone()
+            for at, blink in ((start, True), (start + timedelta(days=1), False)):
+                recorder = DailyRecorder(directory)
+                recorder.observe(at, 0, tracked=True, blink=blink)
+                recorder.close()
+            source = csv_path(directory, start.date())
+            other = csv_path(directory, start.date() + timedelta(days=1))
+            target = folder / "selected.csv"
+            export_daily_csv(directory, start.date(), target)
+            self.assertEqual(target.read_bytes(), source.read_bytes())
+            for unsafe in (source, other, directory / ".daily.lock"):
+                with self.assertRaises(ValueError):
+                    export_daily_csv(directory, start.date(), unsafe)
+            self.assertNotEqual(target.read_bytes(), other.read_bytes())
 
 
 if __name__ == "__main__":

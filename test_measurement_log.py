@@ -76,7 +76,7 @@ class MeasurementLogTests(unittest.TestCase):
                           desktop_actions=None, background=False, clock_ms=None,
                           desktop_observer=None, preview=True, no_keys=False,
                           notification_start="pill", notification_cli=None, controls_error=None,
-                          alert_shown=True):
+                          alert_shown=True, mute_until=None):
         import cv2
         import numpy as np
 
@@ -185,6 +185,7 @@ class MeasurementLogTests(unittest.TestCase):
                 patch.object(app_runtime, "EyeNotice", return_value=notice), \
                 patch.object(app_runtime, "DesktopControls", return_value=controls, side_effect=controls_error), \
                 patch.object(app_runtime, "load_mode", return_value=(notification_start, "")), \
+                patch.object(app_runtime, "load_mute", return_value=(mute_until, "")), \
                 patch.object(app_runtime, "DEFAULT_LOG_DIR", directory / "daily"), \
                 patch.object(app_runtime, "SessionRecorder", side_effect=factory), \
                 patch.object(app_runtime.time, "monotonic_ns", side_effect=[t * 1_000_000 for t in (clock_ms or timestamps)]), \

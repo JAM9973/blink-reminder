@@ -2,7 +2,7 @@
 
 import tkinter as tk
 from PIL import ImageTk
-from notification_settings import MODES
+from notification_settings import MODES, MUTE_OPTIONS
 from ui_design import (BACKGROUND, FOREGROUND, MUTED, BORDER, ACCENT, ERROR_COLOR,
                        FONT_FAMILY, PANEL_WIDTH, CONTENT_PAD_X, CONTENT_PAD_Y,
                        DESCRIPTION_WIDTH, DESCRIPTIONS, switch_image)
@@ -95,10 +95,23 @@ class CompactPanel(tk.Frame):
         self.notification_description.grid(row=6, column=0, sticky="ew", pady=(self.px(9), 0))
         self._style_notification()
 
+        mute_row = self.row(7)
+        mute_row.grid_configure(pady=(self.px(8), 0))
+        self.label(mute_row, "자동 알림", 10).pack(side="left")
+        self.mute_value = tk.StringVar(value="켜짐  ▾")
+        self.mute_button = tk.Menubutton(mute_row, textvariable=self.mute_value,
+            font=(FONT_FAMILY, 10), bg=BACKGROUND, fg=ACCENT,
+            activebackground=BACKGROUND, activeforeground=ACCENT, takefocus=True)
+        self.mute_button.pack(side="right")
+        self.mute_menu = tk.Menu(self.mute_button, tearoff=False)
+        self.mute_button.configure(menu=self.mute_menu)
+        for key, label in MUTE_OPTIONS.items():
+            self.mute_menu.add_command(label=label, command=lambda value=key: emit("mute:" + value))
+
         self.notification_hint = self.label(self.content, "", 9, ERROR_COLOR)
         self.notification_hint.configure(wraplength=self.px(DESCRIPTION_WIDTH), justify="left")
-        self.divider(8)
-        preview_row = self.row(9)
+        self.divider(9)
+        preview_row = self.row(10)
         self.label(preview_row, "카메라 미리보기", 11).pack(side="left")
         self.preview_label, self.preview_switch = self.switch(
             preview_row, self.preview, "카메라 미리보기", lambda: emit("preview_toggle"))
@@ -183,7 +196,7 @@ class CompactPanel(tk.Frame):
         self.window.geometry(f"{width}x{self.winfo_reqheight()}")
 
     def update_values(self, *, paused, result, target, preview_enabled, landmarks_visible,
-                      notification_mode="pill", notification_warning=""):
+                      notification_mode="pill", notification_warning="", mute_status="켜짐"):
         self.power.set(not paused)
         self.power_label.configure(text="꺼짐" if paused else "켜짐")
         self.count_label.configure(text=str(result.count_60s) if result is not None else "—")
@@ -206,19 +219,22 @@ class CompactPanel(tk.Frame):
         if self.notification_value.get() != notification_mode:
             self.notification_value.set(notification_mode)
             self._style_notification()
+        mute_text = f"{mute_status}  ▾"
+        if self.mute_value.get() != mute_text:
+            self.mute_value.set(mute_text)
         resize = False
         if notification_warning != self._notification_warning:
             self._notification_warning = notification_warning
             self.notification_hint.configure(text=notification_warning)
             if notification_warning:
-                self.notification_hint.grid(row=7, column=0, sticky="ew", pady=(self.px(8), 0))
+                self.notification_hint.grid(row=8, column=0, sticky="ew", pady=(self.px(8), 0))
             else:
                 self.notification_hint.grid_remove()
             resize = True
         if preview_enabled != self._points_shown:
             self._points_shown = preview_enabled
             if preview_enabled:
-                self.points_row.grid(row=10, column=0, sticky="ew", pady=(self.px(10), 0))
+                self.points_row.grid(row=11, column=0, sticky="ew", pady=(self.px(10), 0))
             else:
                 self.points_row.grid_remove()
             resize = True

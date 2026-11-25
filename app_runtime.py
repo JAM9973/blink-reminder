@@ -9,7 +9,8 @@ from engine import BlinkEngine
 from input_tracking import ensure_model, open_camera, read_eye_sample, draw_eye_points
 from measurement_log import FrameRate, SessionRecorder
 from notifications import NotificationManager as EyeNotice
-from notification_settings import MODES as NOTIFICATION_MODES, load_mode, save_mode
+from notification_settings import (MODES as NOTIFICATION_MODES, MUTE_OPTIONS,
+                                   load_mode, load_mute, save_mode, save_mute)
 from preview_window import PreviewWindow
 
 
@@ -33,6 +34,7 @@ class BlinkApplication:
         self.pending_actions = []
         self.notification_mode, self.notification_warning = (
             load_mode() if args.notification is None else (args.notification, ""))
+        self.mute_until, self.mute_warning = load_mute()
 
     def run(self):
         try:
@@ -100,6 +102,8 @@ class BlinkApplication:
         elif action == "notification_test":
             self.notice.show(preview=True)
             self._save_control("notification_test")
+        elif action.startswith("mute:"):
+            self._change_mute(action.partition(":")[2])
         elif action == "statistics":
             self.controls.open_statistics(DEFAULT_LOG_DIR)
         elif action == "points":
@@ -140,6 +144,30 @@ class BlinkApplication:
             self.notification_warning = "이번 실행에 적용됨 · 알림 선택 저장 실패"
             print(f"알림 설정 저장 오류: {exc}")
         self._save_control("notification_mode")
+
+    def _change_mute(self, selected):
+        if selected not in MUTE_OPTIONS:
+            return
+        if selected == "on":
+            self.mute_until = None
+        elif selected == "off":
+            self.mute_until = "off"
+        else:
+            self.mute_until = round(time.time() * 1000) + int(selected) * 60_000
+        if self.mute_until is not None:
+            self.notice.hide()
+        try:
+            save_mute(self.mute_until)
+            self.mute_warning = ""
+        except OSError as exc:
+            self.mute_warning = "이번 실행에 적용됨 · 알림 끄기 설정 저장 실패"
+            print(f"알림 끄기 설정 저장 오류: {exc}")
+        self._save_control("notification_mute")
+
+    def _active_mute(self, now):
+        if isinstance(self.mute_until, int) and self.mute_until <= now:
+            self.mute_until = None
+        return self.mute_until
 
     def _observation_boundary(self):
         # 정지 직전과 재개 직후의 눈 상태를 이어서 세지 않는다.
@@ -183,7 +211,8 @@ class BlinkApplication:
         self.last_frame = sample.frame.copy() if self.desktop else None
         if self.last_result.blink:
             print(f"깜빡임 감지: 최근 60초 {self.last_result.count_60s}회 ({self.last_result.blink_reason})")
-        shown = bool(self.last_result.alert and self.notice.show())
+        shown = bool(self.last_result.alert and
+                     self._active_mute(round(time.time() * 1000)) is None and self.notice.show())
         if self.daily_recorder:
             self._record_daily(datetime.fromisoformat(sample.local_time),
                 self.last_result.active_ms - previous_active_ms, tracked=sample.measurement_valid,
@@ -265,7 +294,22 @@ class BlinkApplication:
                     "켜짐" if self.recorder or self.daily_recorder else "꺼짐",
                 mode=self.engine.mode, preview_enabled=self.preview_requested,
                 landmarks_visible=self.show_landmarks, notification_mode=self.notification_mode,
-                notification_warning=self.notice.last_error or self.notification_warning)
+                notification_warning=" · ".join(filter(None, (
+                    self.notice.last_error or self.notification_warning, self.mute_warning))),
+                mute_status=self._mute_label())
+
+    def _mute_label(self):
+        now = round(time.time() * 1000)
+        until = self._active_mute(now)
+        if until is None:
+            return "켜짐"
+        if until == "off":
+            return "꺼짐"
+        minutes = (until - now + 59_999) // 60_000
+        hours, minutes = divmod(minutes, 60)
+        if hours:
+            return f"꺼짐 · {hours}시간 {minutes}분 남음" if minutes else f"꺼짐 · {hours}시간 남음"
+        return f"꺼짐 · {minutes}분 남음"
 
     def _record_daily(self, observed_at, valid_ms=0, *, tracked=False, blink=False, alert=False):
         if self.daily_recorder is None:

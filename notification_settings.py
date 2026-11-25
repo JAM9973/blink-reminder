@@ -1,13 +1,17 @@
-"""마지막으로 선택한 알림 방식만 저장하고 다시 읽는다."""
+"""알림 방식과 자동 알림의 켜짐 상태를 저장한다."""
 
 import json
 from pathlib import Path
 import tempfile
 
+from daily_log import DEFAULT_LOG_DIR
 
 MODES = {"pill": "팝업", "edge": "화면 테두리", "blink": "눈 아이콘"}
 DEFAULT_MODE = "pill"
 SETTINGS_PATH = Path(__file__).resolve().parent / "data" / "notification_settings.json"
+MUTE_PATH = DEFAULT_LOG_DIR.parent / "notification_mute.json"
+MUTE_OPTIONS = {"on": "알림 켜기", "10": "10분 동안 끄기", "60": "1시간 동안 끄기",
+                "120": "2시간 동안 끄기", "1440": "24시간 동안 끄기", "off": "계속 끄기"}
 
 
 def load_mode(path=SETTINGS_PATH):
@@ -26,6 +30,27 @@ def load_mode(path=SETTINGS_PATH):
 def save_mode(mode, path=SETTINGS_PATH):
     if mode not in MODES:
         raise ValueError("지원하지 않는 알림 방식입니다.")
+    _save_settings(path, {"schema_version": 1, "mode": mode})
+
+
+def load_mute(path=MUTE_PATH):
+    try:
+        data = Path(path).read_text(encoding="utf-8")
+        value = json.loads(data)
+        if value is not None and value != "off" and (type(value) is not int or value <= 0):
+            raise ValueError("알림 끄기 설정 형식 오류")
+        return value, ""
+    except FileNotFoundError:
+        return None, ""
+    except (OSError, ValueError):
+        return None, "알림 끄기 설정을 읽지 못했습니다."
+
+
+def save_mute(value, path=MUTE_PATH):
+    _save_settings(path, value)
+
+
+def _save_settings(path, value):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = None
@@ -33,7 +58,7 @@ def save_mode(mode, path=SETTINGS_PATH):
         with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
                 prefix=path.name + ".", suffix=".tmp", delete=False) as stream:
             temporary = Path(stream.name)
-            json.dump({"schema_version": 1, "mode": mode}, stream, ensure_ascii=False, indent=2)
+            json.dump(value, stream, ensure_ascii=False, indent=2)
         temporary.replace(path)
     finally:
         if temporary is not None:

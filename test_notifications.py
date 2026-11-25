@@ -6,7 +6,7 @@ import csv
 from pathlib import Path
 from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import blink_app
 import app_runtime
@@ -167,6 +167,55 @@ class NotificationTests(unittest.TestCase):
                 with self.assertRaises(OSError): settings.save_mode("edge",path)
             self.assertEqual(settings.load_mode(path), ("pill", ""))
             self.assertEqual(list(Path(temp).glob("*.tmp")), [])
+
+    def test_mute_choices_persist_and_expire_at_deadline(self):
+        with fixtures.temporary_directory() as temp:
+            path = Path(temp) / "mute.json"
+            self.assertEqual(settings.load_mute(path), (None, ""))
+            with patch.object(app_runtime, "save_mute", side_effect=lambda value: settings.save_mute(value, path)), \
+                    patch.object(app_runtime, "load_mute", side_effect=lambda: settings.load_mute(path)):
+                app = app_runtime.BlinkApplication(blink_app.parse_args([]))
+                app.notice = Mock()
+                for choice, minutes, label in (("10", 10, "10분"), ("60", 60, "1시간"),
+                                               ("120", 120, "2시간"), ("1440", 1440, "24시간")):
+                    with self.subTest(choice=choice), patch.object(app_runtime.time, "time", return_value=100.25):
+                        app._handle_action(f"mute:{choice}")
+                        self.assertEqual(settings.load_mute(path), (100250 + minutes * 60_000, ""))
+                        self.assertEqual(app._mute_label(), f"꺼짐 · {label} 남음")
+                        reopened = app_runtime.BlinkApplication(blink_app.parse_args([]))
+                        self.assertEqual(reopened._mute_label(), app._mute_label())
+                saved = settings.load_mute(path)[0]
+                with patch.object(app_runtime.time, "time", return_value=(saved - 1) / 1000):
+                    self.assertEqual(app._mute_label(), "꺼짐 · 1분 남음")
+                with patch.object(app_runtime.time, "time", return_value=saved / 1000):
+                    self.assertEqual(app._mute_label(), "켜짐")
+                app._handle_action("mute:off")
+                self.assertEqual(settings.load_mute(path), ("off", ""))
+                self.assertEqual(app._mute_label(), "꺼짐")
+                reopened = app_runtime.BlinkApplication(blink_app.parse_args([]))
+                self.assertEqual(reopened._mute_label(), "꺼짐")
+                app._handle_action("mute:on")
+                self.assertEqual(settings.load_mute(path), (None, ""))
+            self.assertEqual(app.notice.hide.call_count, 5)
+
+    def test_muted_alert_preserves_measurement_and_expired_mute_allows_alert(self):
+        for saved, displayed in (("off", 0), (1, 1)):
+            with self.subTest(saved=saved), fixtures.temporary_directory() as temp:
+                folder = Path(temp)
+                _, notice, _ = fixtures.MeasurementLogTests().run_synthetic_app(folder, mute_until=saved)
+                self.assertEqual(notice.show.call_count, displayed)
+                trace, = folder.glob("*.csv")
+                with trace.open(encoding="utf-8", newline="") as stream:
+                    raw = list(csv.DictReader(stream))
+                self.assertEqual(sum(int(row["alert"]) for row in raw), 1)
+                saved_rows = []
+                for path in (folder / "daily").glob("*.csv"):
+                    with path.open(encoding="utf-8", newline="") as stream:
+                        saved_rows.extend(csv.DictReader(stream))
+                self.assertEqual(sum(int(row["alerts"]) for row in saved_rows), displayed)
+                self.assertEqual(sum(int(row["blinks"]) for row in saved_rows), 1)
+                self.assertAlmostEqual(sum(float(row["valid_seconds"]) for row in saved_rows),
+                                       int(raw[-1]["active_ms"]) / 1000)
 
     def test_app_selection_test_and_csv_use_selected_mode(self):
         with fixtures.temporary_directory() as temp:

@@ -6,6 +6,8 @@ from datetime import date, datetime
 import math
 import os
 from pathlib import Path
+from shutil import copyfileobj
+from tempfile import NamedTemporaryFile
 from uuid import uuid4
 
 
@@ -69,6 +71,25 @@ def daily_rates(directory, day):
             totals[index] += count
             seconds[index] += duration
     return [count * 60 / duration if duration else None for count, duration in zip(totals, seconds)]
+
+
+def export_daily_csv(directory, day, destination):
+    source = csv_path(directory, day)
+    log_directory = directory.resolve()
+    target = destination.resolve()
+    if target.parent == log_directory and (
+            target.match("blink_????-??-??.csv") or target == log_directory / ".daily.lock"):
+        raise ValueError("내보내기 파일은 앱이 기록하는 파일과 다른 이름 또는 폴더를 선택하세요.")
+    temporary = None
+    try:
+        with log_lock(directory), source.open("rb") as stream, NamedTemporaryFile(
+                dir=destination.parent, suffix=".tmp", delete=False) as output:
+            temporary = Path(output.name)
+            copyfileobj(stream, output)
+        temporary.replace(destination)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
 
 
 def local_time(epoch_ms):
