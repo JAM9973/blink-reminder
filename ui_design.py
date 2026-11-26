@@ -30,6 +30,30 @@ DESCRIPTIONS = {
 }
 
 
+def dashboard_card(parent, *, color=DASHBOARD_SURFACE, radius=12, inset=12):
+    import tkinter as tk
+
+    scale = parent.winfo_fpixels("1i") / 96
+    padding = round(inset * scale)
+    frame = tk.Frame(parent, bg=parent.cget("bg"))
+    backdrop = tk.Canvas(frame, bg=frame.cget("bg"), highlightthickness=0, bd=0)
+    backdrop.place(relwidth=1, relheight=1)
+    content = tk.Frame(frame, bg=color)
+    content.pack(fill="both", expand=True, padx=padding, pady=padding)
+
+    def draw(event):
+        width, height = event.width, event.height
+        r = min(round(radius * scale), width / 2, height / 2)
+        backdrop.delete("all")
+        backdrop.create_polygon(
+            0, r, 0, 0, r, 0, width - r, 0, width, 0, width, r,
+            width, height - r, width, height, width - r, height,
+            r, height, 0, height, 0, height - r, smooth=True, fill=color)
+
+    backdrop.bind("<Configure>", draw)
+    return frame, content
+
+
 def switch_image(px, enabled, *, accent=ACCENT):
     width, height = px(34), px(20)
     factor = 3

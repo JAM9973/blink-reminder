@@ -1,5 +1,6 @@
 """웹캠 영상에서 눈 좌표와 EAR을 구해 C에 전달할 입력을 만든다."""
 
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
 import math
@@ -25,7 +26,7 @@ RIGHT_EYE = (362, 385, 387, 263, 373, 380)
 EYE_COLUMNS = np.linspace(.15, .85, 16, dtype=np.float32)[None, :, None]
 EYE_ROWS = np.linspace(-.22, .22, 15, dtype=np.float32)[:, None, None]
 MIN_EYE_WIDTH_PX = 12
-MIN_EYE_EDGE_CONTRAST = 8
+MIN_EYE_EDGE_CONTRAST = 3
 HAND_PALM = (0, 1, 5, 9, 13, 17)
 HAND_FINGERS = ((1, 2, 3, 4), (5, 6, 7, 8), (9, 10, 11, 12),
                 (13, 14, 15, 16), (17, 18, 19, 20))
@@ -98,7 +99,7 @@ def eye_region_visible(cv2, gray, landmarks, indices, occlusion_mask=None):
         if np.count_nonzero(overlap) >= overlap.size * MIN_HAND_COVERAGE:
             return False
 
-    # 눈 너비에 맞춘 작은 영역에서 감긴 눈꺼풀의 경계도 확인한다.
+    # 역광에서도 약한 눈꺼풀 경계를 허용하고, 평탄한 가림은 제외한다.
     patch = cv2.remap(gray, x, y, cv2.INTER_LINEAR).astype(np.int16)
     edges = np.abs(patch[2:] - patch[:-2]).max(axis=0)
     return bool(np.median(edges) >= MIN_EYE_EDGE_CONTRAST)
@@ -131,18 +132,44 @@ def ensure_model(path, *, url=MODEL_URL, label="얼굴"):
     return path
 
 
+@contextmanager
+def camera_session(camera):
+    if sys.platform != "win32":
+        yield
+        return
+
+    import ctypes
+    from ctypes import wintypes
+
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel.CreateMutexW.argtypes = (ctypes.c_void_p, wintypes.BOOL, wintypes.LPCWSTR)
+    kernel.CreateMutexW.restype = wintypes.HANDLE
+    kernel.CloseHandle.argtypes = (wintypes.HANDLE,)
+    handle = kernel.CreateMutexW(None, False, f"Local\\BlinkReminder-camera-{camera}")
+    error = ctypes.get_last_error()
+    if not handle:
+        raise ctypes.WinError(error)
+    try:
+        if error == 183:  # ERROR_ALREADY_EXISTS
+            raise RuntimeError("같은 카메라로 눈 깜빡임 알림이 이미 실행 중입니다. 트레이에서 기존 앱을 종료하세요.")
+        yield
+    finally:
+        kernel.CloseHandle(handle)
+
+
 def open_camera(cv2, camera):
-    capture = cv2.VideoCapture(camera)
-    if not capture.isOpened() and sys.platform == "win32":
+    backends = ((), (cv2.CAP_DSHOW,), (cv2.CAP_MSMF,)) if sys.platform == "win32" else ((),)
+    for backend in backends:
+        capture = cv2.VideoCapture(camera, *backend)
+        if capture.isOpened():
+            # 일부 Windows 드라이버는 영상이 들어오기 전에도 열림을 보고한다.
+            for _ in range(3):
+                if capture.grab():
+                    ok, frame = capture.retrieve()
+                    if ok and frame is not None and frame.size:
+                        return capture
         capture.release()
-        capture = cv2.VideoCapture(camera, cv2.CAP_DSHOW)
-    if not capture.isOpened() and sys.platform == "win32":
-        capture.release()
-        capture = cv2.VideoCapture(camera, cv2.CAP_MSMF)
-    if not capture.isOpened():
-        capture.release()
-        raise RuntimeError("웹캠을 열지 못했습니다. 카메라 권한과 --camera 번호를 확인하세요.")
-    return capture
+    raise RuntimeError("웹캠 영상을 시작하지 못했습니다. 카메라 권한과 --camera 번호를 확인하세요.")
 
 
 def read_eye_sample(cv2, mp, landmarker, capture, previous_timestamp, frame_rate, *, hand_landmarker):

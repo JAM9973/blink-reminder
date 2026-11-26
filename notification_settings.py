@@ -2,13 +2,15 @@
 
 import json
 from pathlib import Path
+import sys
 import tempfile
 
 from daily_log import DEFAULT_LOG_DIR
 
 MODES = {"pill": "팝업", "edge": "화면 테두리", "blink": "눈 아이콘"}
 DEFAULT_MODE = "pill"
-SETTINGS_PATH = Path(__file__).resolve().parent / "data" / "notification_settings.json"
+SETTINGS_PATH = (DEFAULT_LOG_DIR.parent if getattr(sys, "frozen", False) else
+                 Path(__file__).resolve().parent / "data") / "notification_settings.json"
 MUTE_PATH = DEFAULT_LOG_DIR.parent / "notification_mute.json"
 MUTE_OPTIONS = {"on": "알림 켜기", "10": "10분 동안 끄기", "60": "1시간 동안 끄기",
                 "120": "2시간 동안 끄기", "1440": "24시간 동안 끄기", "off": "계속 끄기"}

@@ -131,8 +131,9 @@ def local_time(epoch_ms):
 
 
 class DailyRecorder:
-    def __init__(self, directory):
+    def __init__(self, directory, *, checkpoint_ms=None):
         self.directory = directory
+        self.checkpoint_ms = checkpoint_ms
         self.session_id = uuid4().hex
         self.previous_ms = None
         self.start_ms = None
@@ -170,6 +171,10 @@ class DailyRecorder:
             self.start_ms = now_ms
         self.blinks += int(blink)
         self.alerts += int(alert)
+        if (self.checkpoint_ms is not None and self.start_ms is not None
+                and (self.valid_ms or self.blinks or self.alerts)
+                and now_ms - self.start_ms >= self.checkpoint_ms):
+            saved = self.flush() or saved
         return saved
 
     def _save(self, end_ms):
@@ -191,5 +196,8 @@ class DailyRecorder:
         self.valid_ms = self.blinks = self.alerts = 0
         return True
 
-    def close(self):
+    def flush(self):
         return self._save(self.previous_ms)
+
+    def close(self):
+        return self.flush()

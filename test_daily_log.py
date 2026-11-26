@@ -60,6 +60,34 @@ class DailyLogTests(unittest.TestCase):
             rates = daily_rates(directory, start.date())
             self.assertEqual(rates[8 * 12 + 1:8 * 12 + 5], [None, 0, 60, None])
 
+    def test_checkpoints_and_final_flush_accumulate_once_across_sessions(self):
+        with TemporaryDirectory(dir=self.cache) as temp:
+            directory = Path(temp)
+            start = datetime(2026, 11, 25, 8, 0, 51).astimezone()
+            recorder = DailyRecorder(directory, checkpoint_ms=5000)
+            recorder.observe(start, 0, tracked=True)
+            for second in range(1, 6):
+                saved = recorder.observe(start + timedelta(seconds=second), 1000, tracked=True,
+                                         blink=second == 1)
+                self.assertEqual(saved, second == 5)
+            self.assertEqual(daily_statistics(directory, start.date()).valid_seconds, Decimal("5.000"))
+            recorder.observe(start + timedelta(seconds=5, milliseconds=875), 875, tracked=True, alert=True)
+            self.assertTrue(recorder.flush())
+            recorder.observe(start + timedelta(seconds=12), 0, tracked=False)
+            self.assertFalse(recorder.close())
+            restarted = DailyRecorder(directory, checkpoint_ms=5000)
+            next_start = start + timedelta(minutes=4, seconds=8, milliseconds=500)
+            restarted.observe(next_start, 0, tracked=True)
+            self.assertTrue(restarted.observe(next_start + timedelta(seconds=1), 1000, tracked=True, blink=True))
+            self.assertTrue(restarted.close())
+            summary = daily_statistics(directory, start.date())
+            self.assertEqual((summary.valid_seconds, summary.blinks, summary.alerts),
+                             (Decimal("6.875"), 2, 1))
+            csv_rows = rows(csv_path(directory, start.date()))
+            self.assertEqual([row["valid_seconds"] for row in csv_rows],
+                             ["5.000", "0.875", "0.500", "0.500"])
+            self.assertEqual(len({row["session_id"] for row in csv_rows}), 2)
+
     def test_app_writes_blinks_and_only_successful_alerts(self):
         import test_measurement_log as fixtures
 
@@ -169,14 +197,20 @@ class DailyLogTests(unittest.TestCase):
                 writer.writerow(FIELDS)
                 writer.writerow(("one", f"{day}T08:00:00+09:00", f"{day}T08:01:00+09:00", 18, "60.001", 1))
                 writer.writerow(("two", f"{day}T08:05:00+09:00", f"{day}T08:05:30+09:00", 4, "30.000", 2))
+            previous_day = day - timedelta(days=1)
+            with csv_path(directory, previous_day).open("w", encoding="utf-8", newline="") as stream:
+                writer = csv.writer(stream)
+                writer.writerow(FIELDS)
+                writer.writerow(("past", f"{previous_day}T10:00:00+09:00",
+                                 f"{previous_day}T10:01:00+09:00", 6, "60.000", 0))
             original = path.read_bytes()
             with patch("statistics_window.date", wraps=date) as calendar:
                 calendar.today.return_value = day
-                root.geometry("1020x590")
                 actions = []
                 controls = CompactPanel(root, actions.append)
+                root.geometry(f"{controls.px(720)}x{controls.px(475)}")
                 controls.pack(side="left", fill="y")
-                stats = StatisticsPanel(root, directory)
+                stats = StatisticsPanel(root, directory, controls.summary)
                 stats.pack(side="left", fill="both", expand=True)
                 stats.refresh()
                 root.deiconify()
@@ -187,13 +221,20 @@ class DailyLogTests(unittest.TestCase):
                 self.assertEqual(stats.rates[97], 8)
                 self.assertEqual([stats.chart.type(item) for item in stats.chart.find_withtag("rate")],
                                  ["oval", "line", "oval"])
-                self.assertTrue(stats.summary_metrics.winfo_ismapped())
-                self.assertEqual(tuple(label.cget("text") for label in stats.summary_values),
-                                 ("90.001초", "22회", "14.67회/분", "3회"))
+                summary = controls.summary
+                self.assertTrue(summary.winfo_ismapped())
+                self.assertGreater(summary.winfo_rooty(), controls.settings_button.winfo_rooty())
+                self.assertLess(summary.winfo_rootx(), stats.winfo_rootx())
+                self.assertEqual(tuple(value.master.master.grid_info()["row"]
+                                       for value in summary.values), (0, 0, 1, 1))
+                self.assertEqual(tuple(label.cget("text") for label in summary.values),
+                                 ("90초", "22회", "14.67회/분", "3회"))
                 self.assertFalse(controls.settings.winfo_ismapped())
                 controls.settings_button.invoke()
                 root.update_idletasks()
                 self.assertTrue(controls.settings.winfo_ismapped())
+                self.assertFalse(summary.winfo_ismapped())
+                self.assertTrue(stats.chart.winfo_ismapped())
                 self.assertTrue(controls.notification_test.winfo_viewable())
                 controls.plus_button.invoke()
                 controls.notification_buttons["edge"].invoke()
@@ -213,6 +254,23 @@ class DailyLogTests(unittest.TestCase):
                 self.assertEqual(stats.selected_index, 96)
                 stats.chart.event_generate("<Button-1>", x=round(end_x + 25), y=round(end_y))
                 self.assertIsNone(stats.selected_index)
+                stats.picker.set(previous_day.isoformat())
+                stats.picker.event_generate("<<ComboboxSelected>>")
+                controls.settings_button.invoke()
+                root.update_idletasks()
+                self.assertTrue(summary.winfo_ismapped())
+                self.assertEqual(summary.date_picker.get(), previous_day.isoformat())
+                self.assertEqual(tuple(label.cget("text") for label in summary.values),
+                                 ("60초", "6회", "6.00회/분", "0회"))
+                self.assertEqual(stats.rates[120], 6)
+                summary.date_picker.set(day.isoformat())
+                summary.date_picker.event_generate("<<ComboboxSelected>>")
+                self.assertEqual(stats.picker.get(), day.isoformat())
+                self.assertEqual(summary.values[1].cget("text"), "22회")
+                calendar.today.return_value = day + timedelta(days=1)
+                stats.refresh()
+                self.assertEqual(summary.date_picker.get(), (day + timedelta(days=1)).isoformat())
+                self.assertEqual(summary.message.cget("text"), "측정 기록 없음")
             self.assertEqual(path.read_bytes(), original)
 
 

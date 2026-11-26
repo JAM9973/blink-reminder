@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 
 from app_runtime import BlinkApplication
+from daily_log import DEFAULT_LOG_DIR
 from engine import ENGINE_MODES
 from measurement_log import DEFAULT_RECORD_DIR
 from notification_settings import MODES as NOTIFICATION_MODES
@@ -17,7 +18,10 @@ from preview_window import draw_preview_buttons
 from notifications import NotificationManager as EyeNotice
 
 ROOT = Path(__file__).resolve().parent
-os.environ.setdefault("MPLCONFIGDIR", str(ROOT / ".cache" / "matplotlib"))
+cache = DEFAULT_LOG_DIR.parent if getattr(sys, "frozen", False) else ROOT / ".cache"
+os.environ.setdefault("MPLCONFIGDIR", str(cache / "matplotlib"))
+if getattr(sys, "frozen", False):
+    os.environ.setdefault("MPLBACKEND", "Agg")
 
 
 def parse_args(argv=None):

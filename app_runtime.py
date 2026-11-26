@@ -7,7 +7,7 @@ from daily_log import DEFAULT_LOG_DIR, DailyRecorder
 from desktop_controls import DesktopControls
 from engine import BlinkEngine
 from input_tracking import (DEFAULT_HAND_MODEL, HAND_MODEL_URL, ensure_model, open_camera,
-                            read_eye_sample, draw_eye_points)
+                            read_eye_sample, draw_eye_points, camera_session)
 from measurement_log import FrameRate, SessionRecorder
 from notifications import NotificationManager as EyeNotice
 from notification_settings import (MODES as NOTIFICATION_MODES, MUTE_OPTIONS,
@@ -30,7 +30,7 @@ class BlinkApplication:
         self.previous_timestamp = -1
         self.frame_rate = FrameRate()
         self.capture = self.notice = self.controls = self.recorder = None
-        self.daily_recorder = None if args.no_csv else DailyRecorder(DEFAULT_LOG_DIR)
+        self.daily_recorder = None if args.no_csv else DailyRecorder(DEFAULT_LOG_DIR, checkpoint_ms=5000)
         self.daily_recording_error = False
         self.recording_error = False
         self.pending_actions = []
@@ -39,6 +39,10 @@ class BlinkApplication:
         self.mute_until, self.mute_warning = load_mute()
 
     def run(self):
+        with camera_session(self.args.camera):
+            self._run()
+
+    def _run(self):
         try:
             import cv2
             import mediapipe as mp
@@ -183,7 +187,7 @@ class BlinkApplication:
 
     def _pause(self):
         self._observation_boundary()
-        self._record_daily(datetime.now().astimezone())
+        self._record_daily(datetime.now().astimezone(), flush=True)
         self.capture.release()
         self.capture = None
         self.paused = True
@@ -319,11 +323,13 @@ class BlinkApplication:
             return f"꺼짐 · {hours}시간 {minutes}분 남음" if minutes else f"꺼짐 · {hours}시간 남음"
         return f"꺼짐 · {minutes}분 남음"
 
-    def _record_daily(self, observed_at, valid_ms=0, *, tracked=False, blink=False, alert=False):
+    def _record_daily(self, observed_at, valid_ms=0, *, tracked=False, blink=False, alert=False, flush=False):
         if self.daily_recorder is None:
             return
         try:
             saved = self.daily_recorder.observe(observed_at, valid_ms, tracked=tracked, blink=blink, alert=alert)
+            if flush:
+                saved = self.daily_recorder.flush() or saved
         except OSError as exc:
             self.daily_recording_error = True
             self.daily_recorder = None

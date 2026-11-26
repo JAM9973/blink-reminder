@@ -3,11 +3,11 @@
 import tkinter as tk
 from PIL import ImageTk
 from notification_settings import MODES, MUTE_OPTIONS
+from statistics_window import DailySummary
 from ui_design import (DASHBOARD_BACKGROUND as BACKGROUND, DASHBOARD_FOREGROUND as FOREGROUND,
                        DASHBOARD_MUTED as MUTED, DASHBOARD_BORDER as BORDER,
                        DASHBOARD_ACCENT as ACCENT, DASHBOARD_METRIC, ERROR_COLOR,
-                       FONT_FAMILY, CONTENT_PAD_X, CONTENT_PAD_Y,
-                       DESCRIPTION_WIDTH, DESCRIPTIONS, switch_image)
+                       FONT_FAMILY, DESCRIPTION_WIDTH, DESCRIPTIONS, dashboard_card, switch_image)
 
 
 class CompactPanel(tk.Frame):
@@ -21,50 +21,58 @@ class CompactPanel(tk.Frame):
         self._images = []
         self._points_shown = False
         self._notification_warning = ""
-        self.content = tk.Frame(self, bg=BACKGROUND)
-        self.content.pack(fill="both", expand=True, padx=self.px(CONTENT_PAD_X), pady=self.px(CONTENT_PAD_Y))
-        self.content.columnconfigure(0, weight=1)
-        self.content.columnconfigure(0, minsize=self.px(254))
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
+        card, self.content = dashboard_card(self, inset=14)
+        card.grid(row=0, column=0, sticky="nsew")
+        self.content.columnconfigure(0, weight=1, minsize=self.px(250))
+        self.content.rowconfigure(1, weight=1)
 
         header = self.row(0)
-        self.label(header, "측정", 13, weight="bold").pack(side="left")
+        self.status = self.label(header, "측정 준비 중", 11, MUTED, weight="bold")
+        self.status.pack(side="left")
         self.power_label, self.power_switch = self.switch(
             header, self.power, "측정", lambda: emit("pause_toggle"))
 
-        reading = tk.Frame(self.content, bg=DASHBOARD_METRIC, pady=self.px(10))
-        reading.grid(row=1, column=0, sticky="ew", pady=(self.px(16), self.px(12)))
-        self.label(reading, "최근 60초 깜빡임", 10, MUTED).pack()
+        reading_card, reading = dashboard_card(self.content, color=DASHBOARD_METRIC, radius=42, inset=16)
+        reading_card.grid(row=1, column=0, sticky="ew", padx=self.px(14), pady=self.px(12))
+        self.label(reading, "최근 60초", 10, FOREGROUND, weight="bold").pack()
         number = tk.Frame(reading, bg=DASHBOARD_METRIC)
         number.pack()
-        self.count_label = self.label(number, "—", 42, ACCENT, weight="bold")
+        self.count_label = self.label(number, "—", 38, ACCENT, weight="bold")
         self.count_label.pack(side="left")
         self.label(number, "회", 12, MUTED).pack(side="left", anchor="s",
             padx=(self.px(7), 0), pady=(0, self.px(14)))
-        self.status = self.label(reading, "측정 준비 중", 10, MUTED)
-        self.status.pack()
-        self.target_summary = self.label(reading, "", 9, MUTED)
+        self.target_summary = self.label(reading, "", 9, FOREGROUND)
         self.target_summary.pack(pady=(self.px(4), 0))
 
         actions = self.row(2)
+        for column in range(2):
+            actions.columnconfigure(column, weight=1, uniform="action")
         self.preview_button = self.text_button(actions, "카메라 미리보기",
-            lambda: emit("preview_toggle"), size=10, color=ACCENT)
-        self.preview_button.pack(side="left")
-        self.settings_button = self.text_button(actions, "설정 ▾", self.toggle_settings, size=10, color=ACCENT)
-        self.settings_button.pack(side="right")
+            lambda: emit("preview_toggle"), size=10, color=ACCENT, outlined=True)
+        self.preview_button.grid(row=0, column=0, sticky="ew", padx=(0, self.px(6)))
+        self.settings_button = self.text_button(actions, "설정", self.toggle_settings,
+                                                size=10, color=ACCENT, outlined=True)
+        self.settings_button.grid(row=0, column=1, sticky="ew")
 
-        self.points_row = tk.Frame(self.content, bg=BACKGROUND)
+        surface = self.content.cget("bg")
+        self.points_row = tk.Frame(self.content, bg=surface)
         self.points_check = tk.Checkbutton(self.points_row, text="눈 좌표 표시",
             variable=self.points, command=lambda: emit("points"), font=(FONT_FAMILY, 10),
-            bg=BACKGROUND, fg=MUTED, activebackground=BACKGROUND,
-            selectcolor=BACKGROUND, relief="flat", bd=0, takefocus=True,
-            highlightthickness=1, highlightbackground=BACKGROUND, highlightcolor=ACCENT)
+            bg=surface, fg=MUTED, activebackground=surface,
+            selectcolor=surface, relief="flat", bd=0, takefocus=True,
+            highlightthickness=1, highlightbackground=surface, highlightcolor=ACCENT)
         self.points_check.pack(side="left")
 
-        self.settings = tk.Frame(self.content, bg=BACKGROUND)
+        self.summary = DailySummary(self)
+        self.summary.grid(row=1, column=0, sticky="nsew", pady=(self.px(10), 0))
+
+        self.settings_card, self.settings = dashboard_card(self, inset=14)
         self.settings.columnconfigure(0, weight=1)
         target_row = self.row(0, parent=self.settings)
         self.label(target_row, "분당 알림 기준", 10).pack(side="left")
-        stepper = tk.Frame(target_row, bg=BACKGROUND)
+        stepper = tk.Frame(target_row, bg=surface)
         stepper.pack(side="right")
         self.minus_button = self.step_button(stepper, "−", lambda: emit("target_down"))
         self.minus_button.pack(side="left")
@@ -91,10 +99,10 @@ class CompactPanel(tk.Frame):
             button = tk.Radiobutton(choices, text=name, value=mode,
                 variable=self.notification_value, indicatoron=False,
                 command=self._notification_selected, font=(FONT_FAMILY, 10),
-                bg=BACKGROUND, fg=MUTED, selectcolor=BACKGROUND,
-                activebackground=BACKGROUND, activeforeground=ACCENT,
+                bg=surface, fg=MUTED, selectcolor=surface,
+                activebackground=surface, activeforeground=ACCENT,
                 relief="flat", offrelief="flat", overrelief="flat", bd=0,
-                highlightthickness=1, highlightbackground=BACKGROUND,
+                highlightthickness=1, highlightbackground=surface,
                 highlightcolor=ACCENT, pady=self.px(7), padx=0, takefocus=True,
                 cursor="hand2")
             button.grid(row=0, column=column, sticky="ew")
@@ -105,7 +113,7 @@ class CompactPanel(tk.Frame):
             for key, offset in (("<Left>", -1), ("<Right>", 1)):
                 button.bind(key, lambda event, step=offset: self._move_choice(step))
         self.notification_description = self.label(self.settings, "", 9, MUTED)
-        self.notification_description.configure(wraplength=self.px(DESCRIPTION_WIDTH), justify="left", height=2, anchor="nw")
+        self.notification_description.configure(wraplength=self.px(250), justify="left", height=2, anchor="nw")
         self.notification_description.grid(row=3, column=0, sticky="ew", pady=(self.px(6), 0))
         self._style_notification()
 
@@ -113,8 +121,8 @@ class CompactPanel(tk.Frame):
         self.label(mute_row, "자동 알림", 10).pack(side="left")
         self.mute_value = tk.StringVar(value="켜짐  ▾")
         self.mute_button = tk.Menubutton(mute_row, textvariable=self.mute_value,
-            font=(FONT_FAMILY, 10), bg=BACKGROUND, fg=ACCENT,
-            activebackground=BACKGROUND, activeforeground=ACCENT, takefocus=True)
+            font=(FONT_FAMILY, 10), bg=surface, fg=ACCENT,
+            activebackground=surface, activeforeground=ACCENT, takefocus=True)
         self.mute_button.pack(side="right")
         self.mute_menu = tk.Menu(self.mute_button, tearoff=False)
         self.mute_button.configure(menu=self.mute_menu)
@@ -125,12 +133,14 @@ class CompactPanel(tk.Frame):
         self.notification_hint.configure(wraplength=self.px(DESCRIPTION_WIDTH), justify="left")
 
     def toggle_settings(self):
-        if self.settings.winfo_manager():
-            self.settings.grid_remove()
-            self.settings_button.configure(text="설정 ▾")
+        if self.settings_card.winfo_manager():
+            self.settings_card.grid_remove()
+            self.summary.grid()
+            self.settings_button.configure(text="설정")
         else:
-            self.settings.grid(row=5, column=0, sticky="ew", pady=(self.px(12), 0))
-            self.settings_button.configure(text="설정 ▴")
+            self.summary.grid_remove()
+            self.settings_card.grid(row=1, column=0, sticky="nsew", pady=(self.px(10), 0))
+            self.settings_button.configure(text="설정 닫기")
 
     def _style_notification(self):
         selected = self.notification_value.get()
@@ -159,7 +169,8 @@ class CompactPanel(tk.Frame):
                         bg=parent.cget("bg"), fg=color, padx=0, pady=0, anchor="w")
 
     def row(self, index, *, parent=None):
-        frame = tk.Frame(self.content if parent is None else parent, bg=BACKGROUND)
+        parent = self.content if parent is None else parent
+        frame = tk.Frame(parent, bg=parent.cget("bg"))
         frame.grid(row=index, column=0, sticky="ew")
         return frame
 
@@ -169,25 +180,27 @@ class CompactPanel(tk.Frame):
         return photo
 
     def switch(self, parent, variable, name, command):
-        group = tk.Frame(parent, bg=BACKGROUND)
+        surface = parent.cget("bg")
+        group = tk.Frame(parent, bg=surface)
         group.pack(side="right")
         label = self.label(group, "켜짐" if variable.get() else "꺼짐", 9, MUTED)
         label.pack(side="left", padx=(0, self.px(9)))
         switch = tk.Checkbutton(group, name=name.replace(" ", "_"), variable=variable,
             image=self.switch_image(False), selectimage=self.switch_image(True),
             indicatoron=False, command=command, bd=0, relief="flat",
-            offrelief="flat", overrelief="flat", bg=BACKGROUND,
-            activebackground=BACKGROUND, selectcolor=BACKGROUND,
-            highlightthickness=1, highlightbackground=BACKGROUND, highlightcolor=ACCENT,
+            offrelief="flat", overrelief="flat", bg=surface,
+            activebackground=surface, selectcolor=surface,
+            highlightthickness=1, highlightbackground=surface, highlightcolor=ACCENT,
             padx=0, pady=0, takefocus=True, cursor="hand2")
         switch.pack(side="left")
         return label, switch
 
-    def text_button(self, parent, text, command, *, size=11, color=FOREGROUND):
+    def text_button(self, parent, text, command, *, size=11, color=FOREGROUND, outlined=False):
+        surface = parent.cget("bg")
         return tk.Button(parent, text=text, command=command, font=(FONT_FAMILY, size),
-            fg=color, bg=BACKGROUND, activebackground=BACKGROUND, activeforeground=ACCENT,
-            relief="flat", bd=0, padx=self.px(2), pady=self.px(3), takefocus=True,
-            highlightthickness=1, highlightbackground=BACKGROUND,
+            fg=color, bg=surface, activebackground=DASHBOARD_METRIC, activeforeground=ACCENT,
+            relief="flat", bd=0, padx=self.px(2), pady=self.px(5 if outlined else 3), takefocus=True,
+            highlightthickness=1, highlightbackground=ACCENT if outlined else surface,
             highlightcolor=ACCENT, cursor="hand2")
 
     def step_button(self, parent, text, command):

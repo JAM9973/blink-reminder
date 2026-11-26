@@ -1,4 +1,4 @@
-"""오늘 요약과 날짜별 분당 깜빡임을 보여준다."""
+"""선택한 날짜의 요약과 분당 깜빡임을 보여준다."""
 
 from datetime import date
 import math
@@ -9,53 +9,85 @@ from tkinter import filedialog, messagebox, ttk
 from daily_log import BIN_MINUTES, csv_path, daily_statistics, export_daily_csv, recorded_dates
 from ui_design import (DASHBOARD_ACCENT as ACCENT, DASHBOARD_BACKGROUND as BACKGROUND,
                        DASHBOARD_BORDER as BORDER, DASHBOARD_FOREGROUND as FOREGROUND,
-                       DASHBOARD_MUTED as MUTED, DASHBOARD_SURFACE as SURFACE, FONT_FAMILY)
+                       DASHBOARD_MUTED as MUTED, DASHBOARD_SURFACE as SURFACE,
+                       DASHBOARD_METRIC, FONT_FAMILY, dashboard_card)
+
+
+class DailySummary(tk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent, bg=BACKGROUND)
+        card, content = dashboard_card(self, inset=12)
+        card.pack(fill="both", expand=True)
+        header = tk.Frame(content, bg=SURFACE)
+        header.pack(fill="x", pady=(0, 8))
+        tk.Label(header, text="날짜별 요약", bg=SURFACE, fg=FOREGROUND,
+                 font=(FONT_FAMILY, 12, "bold")).pack(side="left")
+        self.day = tk.StringVar(master=self)
+        self.date_picker = ttk.Combobox(header, width=11, state="readonly", textvariable=self.day,
+                                        font=(FONT_FAMILY, 8))
+        self.date_picker.pack(side="right")
+        self.values = []
+        metrics = tk.Frame(content, bg=SURFACE)
+        metrics.pack(fill="x")
+        for column in range(2):
+            metrics.columnconfigure(column, weight=1, uniform="metric")
+        for index, name in enumerate(("측정 시간", "깜빡임 총횟수", "분당 깜빡임", "표시된 알림")):
+            row, column = divmod(index, 2)
+            tile, metric = dashboard_card(metrics, color=DASHBOARD_METRIC, radius=8, inset=6)
+            tile.grid(row=row, column=column, sticky="nsew",
+                      padx=(0, 6 if column == 0 else 0), pady=(0, 6 if row == 0 else 0))
+            tk.Label(metric, text=name, bg=DASHBOARD_METRIC, fg=MUTED,
+                     font=(FONT_FAMILY, 8)).pack()
+            value = tk.Label(metric, text="—", bg=DASHBOARD_METRIC, fg=ACCENT,
+                             font=(FONT_FAMILY, 11, "bold"))
+            value.pack()
+            self.values.append(value)
+        self.message = tk.Label(content, bg=SURFACE, fg=MUTED, font=(FONT_FAMILY, 8), anchor="w")
+
+    def show(self, statistics):
+        if statistics is None or not statistics.valid_seconds:
+            values = ("—",) * len(self.values)
+            message = "통계 기록을 읽지 못했습니다." if statistics is None else "측정 기록 없음"
+            self.message.configure(text=message)
+            self.message.pack(fill="x", pady=(4, 0))
+        else:
+            self.message.pack_forget()
+            values = (f"{int(statistics.valid_seconds):,}초", f"{statistics.blinks:,}회",
+                      f"{statistics.blinks_per_minute:,.2f}회/분", f"{statistics.alerts:,}회")
+        for label, value in zip(self.values, values):
+            label.configure(text=value)
 
 
 class StatisticsPanel(tk.Frame):
-    def __init__(self, parent, directory):
+    def __init__(self, parent, directory, summary):
         super().__init__(parent, bg=BACKGROUND)
         self.directory = directory
-        self.window = parent
+        self.summary = summary
+        self.window = self.winfo_toplevel()
+        card, content = dashboard_card(self, inset=16)
+        card.pack(fill="both", expand=True)
 
-        tk.Label(self, text="일일 깜빡임 통계", bg=BACKGROUND, fg=FOREGROUND,
-                 font=(FONT_FAMILY, 16, "bold"), anchor="w").pack(fill="x")
-        summary = tk.Frame(self, bg=BACKGROUND)
-        summary.pack(fill="x", pady=(16, 0))
-        self.summary_heading = tk.Label(summary, bg=BACKGROUND, fg=FOREGROUND,
-                                        font=(FONT_FAMILY, 11, "bold"), anchor="w")
-        self.summary_heading.pack(fill="x")
-        self.summary_metrics = tk.Frame(summary, bg=BACKGROUND)
-        self.summary_empty = tk.Label(summary, bg=BACKGROUND, fg=MUTED, font=(FONT_FAMILY, 10), anchor="w")
-        self.summary_values = []
-        for column, name in enumerate(("유효 측정 시간", "깜빡임 총횟수", "분당 깜빡임", "표시된 알림")):
-            self.summary_metrics.columnconfigure(column, weight=1, uniform="metric")
-            metric = tk.Frame(self.summary_metrics, bg=SURFACE, padx=7, pady=8)
-            metric.grid(row=0, column=column, sticky="nsew", padx=(0, 5 if column < 3 else 0))
-            tk.Label(metric, text=name, bg=SURFACE, fg=MUTED,
-                     font=(FONT_FAMILY, 9)).pack()
-            value = tk.Label(metric, bg=SURFACE, fg=ACCENT, font=(FONT_FAMILY, 12, "bold"))
-            value.pack()
-            self.summary_values.append(value)
-
-        header = tk.Frame(self, bg=BACKGROUND)
-        header.pack(fill="x", pady=(14, 9))
-        tk.Label(header, text="날짜", bg=BACKGROUND, fg=FOREGROUND,
+        tk.Label(content, text="일일 통계", bg=SURFACE, fg=FOREGROUND,
+                 font=(FONT_FAMILY, 15, "bold"), anchor="w").pack(fill="x")
+        header = tk.Frame(content, bg=SURFACE)
+        header.pack(fill="x", pady=(12, 8))
+        tk.Label(header, text="날짜", bg=SURFACE, fg=FOREGROUND,
                  font=(FONT_FAMILY, 9)).pack(side="left")
-        self.day = tk.StringVar()
+        self.day = summary.day
         self.picker = ttk.Combobox(header, width=12, state="readonly", textvariable=self.day,
                                    font=(FONT_FAMILY, 9))
         self.picker.pack(side="left", padx=8)
         self.picker.bind("<<ComboboxSelected>>", self.refresh)
+        summary.date_picker.bind("<<ComboboxSelected>>", self.refresh)
         self.export_button = tk.Button(header, text="CSV 내보내기", command=self.export_csv,
             font=(FONT_FAMILY, 9, "bold"), bg=ACCENT, fg=SURFACE, activebackground=FOREGROUND,
             activeforeground=SURFACE, disabledforeground=BORDER, relief="flat", bd=0,
-            highlightthickness=1, highlightbackground=BACKGROUND, highlightcolor=ACCENT, padx=12, pady=4)
+            highlightthickness=1, highlightbackground=SURFACE, highlightcolor=ACCENT, padx=12, pady=4)
         self.export_button.pack(side="right")
-        self.export_status = tk.Label(header, bg=BACKGROUND, fg=MUTED, font=(FONT_FAMILY, 9))
+        self.export_status = tk.Label(header, bg=SURFACE, fg=MUTED, font=(FONT_FAMILY, 9))
         self.export_status.pack(side="right", padx=8)
 
-        self.chart = tk.Canvas(self, bg=SURFACE, highlightthickness=0, width=1, height=1)
+        self.chart = tk.Canvas(content, bg=SURFACE, highlightthickness=0, width=1, height=1)
         self.chart.pack(fill="both", expand=True)
         self.chart.bind("<Configure>", self.draw)
         self.chart.tag_bind("rate", "<Enter>", lambda _event: self.chart.configure(cursor="hand2"))
@@ -74,6 +106,7 @@ class StatisticsPanel(tk.Frame):
         if _event is not None:
             self.export_status.configure(text="")
         today = date.today()
+        following_today = self.today is not None and self.day.get() == self.today.isoformat()
         self.today = today
         self.rates = []
         self.message = "측정 기록 없음"
@@ -84,7 +117,8 @@ class StatisticsPanel(tk.Frame):
             days = sorted({today, *recorded_dates(self.directory)}, reverse=True)
             choices = [day.isoformat() for day in days]
             self.picker.configure(values=choices)
-            if self.day.get() not in choices:
+            self.summary.date_picker.configure(values=choices)
+            if following_today or self.day.get() not in choices:
                 self.day.set(today.isoformat())
             selected = date.fromisoformat(self.day.get())
             if csv_path(self.directory, selected).is_file():
@@ -93,15 +127,10 @@ class StatisticsPanel(tk.Frame):
             self.rates = statistics.rates
         except (OSError, ValueError, TypeError, OverflowError):
             self.message = "통계 기록을 읽지 못했습니다."
-        if selected != today:
-            try:
-                statistics = daily_statistics(self.directory, today)
-            except (OSError, ValueError, TypeError, OverflowError):
-                statistics = None
         if selected != self.plotted_day:
             self.plotted_day = selected
             self.selected_index = None
-        self._show_summary(today, statistics)
+        self.summary.show(statistics)
         self.draw()
 
     def _check_date(self):
@@ -112,21 +141,6 @@ class StatisticsPanel(tk.Frame):
     def _cancel_date_check(self, event):
         if event.widget == self:
             self.after_cancel(self.date_check)
-
-    def _show_summary(self, today, statistics):
-        self.summary_heading.configure(text=f"오늘 요약  {today:%Y-%m-%d}")
-        if statistics is None or not statistics.valid_seconds:
-            self.summary_metrics.pack_forget()
-            message = "오늘 기록을 읽지 못했습니다." if statistics is None else "측정 기록 없음"
-            self.summary_empty.configure(text=message)
-            self.summary_empty.pack(fill="x", pady=(7, 0))
-            return
-        self.summary_empty.pack_forget()
-        values = (f"{statistics.valid_seconds:,.3f}초", f"{statistics.blinks:,}회",
-                  f"{statistics.blinks_per_minute:,.2f}회/분", f"{statistics.alerts:,}회")
-        for label, value in zip(self.summary_values, values):
-            label.configure(text=value)
-        self.summary_metrics.pack(fill="x", pady=(7, 0))
 
     def export_csv(self):
         selected = date.fromisoformat(self.day.get())
@@ -154,8 +168,8 @@ class StatisticsPanel(tk.Frame):
         if width < 120 or height < 120:
             return
         font = (FONT_FAMILY, 9)
-        left, top, right, bottom = 56, 34, width - 32, height - 50
-        chart.create_text(left, 15, text="분당 깜빡임 (회/분)", anchor="w", fill=FOREGROUND,
+        left, top, right, bottom = 42, 36, width - 28, height - 32
+        chart.create_text(1, 14, text="분당 깜빡임 (회/분)", anchor="w", fill=FOREGROUND,
                           font=(FONT_FAMILY, 10, "bold"))
 
         measured = [(index, rate) for index, rate in enumerate(self.rates) if rate is not None]

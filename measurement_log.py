@@ -12,10 +12,11 @@ import sys
 import time
 
 from build import library_path
+from daily_log import DEFAULT_LOG_DIR
 
 
 ROOT = Path(__file__).resolve().parent
-DEFAULT_RECORD_DIR = ROOT / "data" / "records"
+DEFAULT_RECORD_DIR = (DEFAULT_LOG_DIR.parent if getattr(sys, "frozen", False) else ROOT / "data") / "records"
 
 
 @dataclass(frozen=True)
@@ -94,7 +95,7 @@ class SessionRecorder:
                 environment=dict(os=platform.platform(), python=sys.version,
                                  python_machine=platform.machine()),
                 source_sha256={name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
-                               for name in sources},
+                               for name in sources if (ROOT / name).is_file()},
                 library_sha256=(hashlib.sha256(library.read_bytes()).hexdigest()
                                 if library.exists() else None))
             with self.path.with_suffix(".json").open("x", encoding="utf-8") as sidecar:

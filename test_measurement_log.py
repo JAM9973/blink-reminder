@@ -76,7 +76,8 @@ class MeasurementLogTests(unittest.TestCase):
                           desktop_actions=None, background=False, clock_ms=None,
                           desktop_observer=None, preview=True, no_keys=False,
                           notification_start="pill", notification_cli=None, controls_error=None,
-                          alert_shown=True, mute_until=None, covered_frames=(), hand_frames=None):
+                          alert_shown=True, mute_until=None, covered_frames=(), hand_frames=None,
+                          dim_eye_edges=False):
         import cv2
         import numpy as np
 
@@ -95,9 +96,11 @@ class MeasurementLogTests(unittest.TestCase):
         capture = Mock()
         capture.isOpened.return_value = True
         visible = np.full((100, 200, 3), 180, dtype=np.uint8)
-        visible[29:32, :] = 40
+        visible[29:32, :] = 175 if dim_eye_edges else 40
         covered = visible.copy()
         covered[18:43, 118:165] = 180
+        capture.grab.return_value = True
+        capture.retrieve.return_value = (True, visible)
         capture.read.side_effect = [(True, (covered if index in covered_frames else visible).copy())
                                     for index, _ in enumerate(timestamps)]
         if fail_read:
@@ -235,7 +238,7 @@ class MeasurementLogTests(unittest.TestCase):
         hand_frames = {132: [below, crossing], 165: [crossing], 264: [below], 297: [below]}
         with temporary_directory() as temp:
             directory = Path(temp)
-            self.run_synthetic_app(directory, hand_frames=hand_frames)
+            self.run_synthetic_app(directory, hand_frames=hand_frames, dim_eye_edges=True)
             trace, = directory.glob("*.csv")
             with trace.open(encoding="utf-8-sig", newline="") as stream:
                 rows = list(csv.DictReader(stream))
@@ -244,6 +247,16 @@ class MeasurementLogTests(unittest.TestCase):
                                   row["active_ms"], row["blink"], row["alert"]), ("1", "0", "99", "0", "0"))
             self.assertEqual([row["measurement_valid"] for row in rows[8:10]], ["1", "1"])
             self.assertEqual(sum(int(row["blink"]) for row in rows), 0)
+
+    def test_dim_eye_edges_are_measured_through_a_normal_blink(self):
+        with temporary_directory() as temp:
+            directory = Path(temp)
+            self.run_synthetic_app(directory, dim_eye_edges=True)
+            trace, = directory.glob("*.csv")
+            with trace.open(encoding="utf-8-sig", newline="") as stream:
+                rows = list(csv.DictReader(stream))
+            self.assertTrue(all(row["measurement_valid"] == "1" for row in rows[:6]))
+            self.assertEqual(sum(int(row["blink"]) for row in rows[:6]), 1)
 
     def test_real_app_loop_saves_raw_values_settings_and_events(self):
         with temporary_directory() as temp:

@@ -1,14 +1,40 @@
 """Regression checks for unusable measurements, without a camera."""
 
 import math
+import sys
 from types import SimpleNamespace
 import unittest
+from unittest.mock import Mock, call, patch
 
 from blink_app import eye_aspect_ratio, LEFT_EYE
 from engine import BlinkEngine
+from input_tracking import camera_session, open_camera
 
 
 class InvalidEarTests(unittest.TestCase):
+    @unittest.skipUnless(sys.platform == "win32", "Windows 카메라 중복 실행 검사")
+    def test_camera_session_allows_other_cameras_and_reopens_after_exit(self):
+        with camera_session(921):
+            with self.assertRaisesRegex(RuntimeError, "이미 실행 중"), camera_session(921):
+                self.fail("same camera slot was acquired twice")
+            with camera_session(922):
+                pass
+        with camera_session(921):
+            pass
+
+    def test_windows_tries_another_backend_when_open_camera_yields_no_frame(self):
+        first = Mock()
+        first.grab.return_value = False
+        second = Mock()
+        second.retrieve.return_value = (True, SimpleNamespace(size=6))
+        cv = SimpleNamespace(CAP_DSHOW=700, CAP_MSMF=1400,
+                             VideoCapture=Mock(side_effect=[first, second]))
+        with patch("input_tracking.sys.platform", "win32"):
+            self.assertIs(open_camera(cv, 0), second)
+        self.assertEqual(cv.VideoCapture.call_args_list, [call(0), call(0, 700)])
+        first.release.assert_called_once()
+        second.release.assert_not_called()
+
     def test_either_invalid_eye_pauses_time_and_requires_new_open(self):
         for bad in (float("nan"), float("inf"), -float("inf"), -.1):
             for side in (0, 1):

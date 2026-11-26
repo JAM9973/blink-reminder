@@ -2,6 +2,7 @@
 
 import ctypes
 from pathlib import Path
+import sys
 from build import library_path
 
 
@@ -29,8 +30,11 @@ class BlinkEngine:
         root = Path(__file__).resolve().parent
         path = library_path()
         sources = [root / "blink_engine.c", root / "blink_engine.h"]
-        if not path.exists() or any(p.stat().st_mtime_ns > path.stat().st_mtime_ns
-                                     for p in sources):
+        if getattr(sys, "frozen", False):
+            if not path.is_file():
+                raise RuntimeError("배포 폴더에 C 라이브러리가 없습니다. ZIP 전체를 다시 압축 해제하세요.")
+        elif not path.exists() or any(p.stat().st_mtime_ns > path.stat().st_mtime_ns
+                                      for p in sources):
             from build import build
             build()
         self._lib = ctypes.CDLL(str(path))
